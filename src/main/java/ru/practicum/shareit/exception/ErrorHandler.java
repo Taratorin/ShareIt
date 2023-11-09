@@ -31,4 +31,11 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+    @ExceptionHandler()
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbiddenException(final ForbiddenException e) {
+        log.trace("Получен статус 403 Forbidden {}", e.getMessage(), e);
+        return new ErrorResponse(e.getMessage());
+    }
+
 }

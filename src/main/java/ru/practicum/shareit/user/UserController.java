@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -25,7 +24,7 @@ public class UserController {
 
     @PatchMapping("/{id}")
     public UserDto updateUser(@Valid @RequestBody UserDto userDto, @PathVariable int id) {
-        log.info("Получен запрос PUT /users — обновление пользователя");
+        log.info("Получен запрос PATCH /users — обновление пользователя");
         return userService.updateUser(userDto, id);
     }
 
@@ -36,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDto getUsers(@PathVariable int id) {
+    public UserDto getUser(@PathVariable int id) {
         log.info("Получен запрос GET /users/{Id} — получение пользователя по id");
         return userService.getUserById(id);
     }
