@@ -29,23 +29,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(UserDto userDto, int id) {
-        if (userDao.isUserByIdExists(id)) {
-            User user = getUserById(id);
-            String name = userDto.getName();
-            String email = userDto.getEmail();
-            if (name != null && !name.isBlank()) {
-                user.setName(name);
-            }
-            if (email != null && !email.isBlank()) {
-                if (!userDao.isEmailUnique(email, id)) {
-                    throw new ConflictException("Пользователь с такой почтой уже существует.");
-                }
-                user.setEmail(email);
-            }
-            return UserMapper.toUserDto(user);
-        } else {
-            throw new BadRequestException("Пользователь с id=" + id + " не существует.");
+        User user = getUserById(id);
+        String name = userDto.getName();
+        String email = userDto.getEmail();
+        if (name != null && !name.isBlank()) {
+            user.setName(name);
         }
+        if (email != null && !email.isBlank()) {
+            if (!userDao.isEmailUnique(email, id)) {
+                throw new ConflictException("Пользователь с такой почтой уже существует.");
+            }
+            user.setEmail(email);
+        }
+        return UserMapper.toUserDto(user);
     }
 
     @Override
