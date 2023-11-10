@@ -2,15 +2,12 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserDao;
+import ru.practicum.shareit.user.UserService;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,23 +15,21 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
+    private final UserService userService;
     private final UserDao userDao;
     private final ItemDao itemDao;
 
     @Override
     public ItemDto createItem(ItemDto itemDto, int userId) {
-        if (isItemDtoValid(itemDto)) {
-            User user = userDao.getUserById(userId);
-            if (user != null) {
-                Item item = ItemMapper.toItem(itemDto);
-                item.setOwner(user);
-                Item itemFromDao = itemDao.createItem(item);
-                return ItemMapper.toItemDto(itemFromDao);
-            } else {
-                throw new NotFoundException("Пользователь с id=" + userId + " не найден.");
-            }
+        if (userDao.isUserByIdExists(userId)) {
+            System.out.println("существует");
+            Item item = ItemMapper.toItem(itemDto);
+            item.setOwner(userService.getUserById(userId));
+            Item itemFromDao = itemDao.createItem(item);
+            return ItemMapper.toItemDto(itemFromDao);
         } else {
-            throw new BadRequestException("Вещь должна содержать имя, описание и сведения о доступности.");
+            System.out.println("doesn't exists");
+            throw new NotFoundException("Пользователь с id=" + userId + " не существует.");
         }
     }
 
@@ -43,17 +38,19 @@ public class ItemServiceImpl implements ItemService {
         Item itemToUpdate = getItemById(itemId);
         if (itemToUpdate != null) {
             if (itemToUpdate.getOwner().getId() == userId) {
-                if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
-                    itemToUpdate.setName(itemDto.getName());
+                String name = itemDto.getName();
+                String description = itemDto.getDescription();
+                Boolean available = itemDto.getAvailable();
+                if (name != null && !name.isBlank()) {
+                    itemToUpdate.setName(name);
                 }
-                if (itemDto.getDescription() != null && !itemDto.getDescription().isBlank()) {
-                    itemToUpdate.setDescription(itemDto.getDescription());
+                if (description != null && !description.isBlank()) {
+                    itemToUpdate.setDescription(description);
                 }
-                if (itemDto.getAvailable() != null) {
-                    itemToUpdate.setAvailable(itemDto.getAvailable());
+                if (available != null) {
+                    itemToUpdate.setAvailable(available);
                 }
-                Item itemFromDao = itemDao.updateItem(itemToUpdate);
-                return ItemMapper.toItemDto(itemFromDao);
+                return ItemMapper.toItemDto(itemToUpdate);
             } else {
                 throw new ForbiddenException("Запрещено изменять вещи другого пользователя.");
             }
@@ -70,8 +67,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getItemsByUserId(int userId) {
-        userDao.getUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден."));
+        userService.getUserById(userId);
         List<Item> items = itemDao.getItemsByUserId(userId);
         return items.stream()
                 .map(ItemMapper::toItemDto)
@@ -90,15 +86,6 @@ public class ItemServiceImpl implements ItemService {
             return List.of();
         }
     }
-
-    //todo удалить метод
-//    private Boolean isItemDtoValid(ItemDto itemDto) {
-//        return (itemDto.getName() != null &&
-//                !itemDto.getName().isBlank() &&
-//                itemDto.getDescription() != null &&
-//                !itemDto.getDescription().isBlank() &&
-//                itemDto.getAvailable() != null);
-//    }
 
     private Item getItemById(int itemId) {
         return itemDao.getItemById(itemId)

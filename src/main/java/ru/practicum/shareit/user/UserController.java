@@ -8,7 +8,6 @@ import ru.practicum.shareit.config.Create;
 import ru.practicum.shareit.config.Update;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -40,7 +39,7 @@ public class UserController {
     @GetMapping("/{id}")
     public UserDto getUser(@PathVariable int id) {
         log.info("Получен запрос GET /users/{Id} — получение пользователя по id");
-        return userService.getUserById(id);
+        return userService.getUserDtoById(id);
     }
 
     @DeleteMapping("/{id}")
