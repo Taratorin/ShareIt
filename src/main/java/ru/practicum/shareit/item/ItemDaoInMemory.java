@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -12,9 +13,12 @@ import java.util.stream.Collectors;
 public class ItemDaoInMemory implements ItemDao {
 
     private final Map<Integer, Item> items;
+    private int id;
+
 
     @Override
     public Item createItem(Item item) {
+        item.setId(getId());
         items.put(item.getId(), item);
         return item;
     }
@@ -31,8 +35,8 @@ public class ItemDaoInMemory implements ItemDao {
     }
 
     @Override
-    public Item getItemById(int id) {
-        return items.get(id);
+    public Optional<Item> getItemById(int id) {
+        return Optional.of(items.get(id));
     }
 
     @Override
@@ -49,6 +53,10 @@ public class ItemDaoInMemory implements ItemDao {
                         (x.getName().toLowerCase().contains(query) ||
                         x.getDescription().toLowerCase().contains(query))))
                 .collect(Collectors.toList());
+    }
+
+    private int getId() {
+        return ++id;
     }
 
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -13,9 +14,11 @@ import java.util.stream.Collectors;
 public class UserDaoInMemory implements UserDao {
 
     private final Map<Integer, User> users;
+    private int id;
 
     @Override
     public User createUser(User user) {
+        user.setId(getId());
         users.put(user.getId(), user);
         return user;
     }
@@ -49,8 +52,8 @@ public class UserDaoInMemory implements UserDao {
     }
 
     @Override
-    public User getUserById(int id) {
-        return users.get(id);
+    public Optional<User> getUserById(int id) {
+        return Optional.of(users.get(id));
     }
 
     @Override
@@ -63,4 +66,7 @@ public class UserDaoInMemory implements UserDao {
         return new ArrayList<>(users.values());
     }
 
+    private int getId() {
+        return ++id;
+    }
 }

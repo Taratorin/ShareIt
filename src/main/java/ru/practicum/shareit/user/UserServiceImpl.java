@@ -14,14 +14,12 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
-    private int id;
 
     @Override
     public UserDto createUser(UserDto userDto) {
         if (userDto.getEmail() != null) {
             User user = UserMapper.toUser(userDto);
             if (!userDao.isUserByEmailExists(user)) {
-                user.setId(getId());
                 User userFromDao = userDao.createUser(user);
                 return UserMapper.toUserDto(userFromDao);
             } else {
@@ -36,10 +34,10 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UserDto userDto, int id) {
         if (userDao.isUserByIdExists(id)) {
             User user = userDao.getUserById(id);
-            if (userDto.getName() != null) {
+            if (userDto.getName() != null && !userDto.getName().isBlank()) {
                 user.setName(userDto.getName());
             }
-            if (userDto.getEmail() != null) {
+            if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) {
                 if (!userDao.isEmailUnique(userDto.getEmail(), id)) {
                     throw new ConflictException("Пользователь с такой почтой уже существует.");
                 }
@@ -75,7 +73,4 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private int getId() {
-        return ++id;
-    }
 }

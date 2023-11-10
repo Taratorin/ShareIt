@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserDao;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,6 @@ public class ItemServiceImpl implements ItemService {
 
     private final UserDao userDao;
     private final ItemDao itemDao;
-    private int id;
 
     @Override
     public ItemDto createItem(ItemDto itemDto, int userId) {
@@ -27,7 +27,6 @@ public class ItemServiceImpl implements ItemService {
             User user = userDao.getUserById(userId);
             if (user != null) {
                 Item item = ItemMapper.toItem(itemDto);
-                item.setId(getId());
                 item.setOwner(user);
                 Item itemFromDao = itemDao.createItem(item);
                 return ItemMapper.toItemDto(itemFromDao);
@@ -41,13 +40,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(ItemDto itemDto, int itemId, int userId) {
-        Item itemToUpdate = itemDao.getItemById(itemId);
+        Item itemToUpdate = getItemById(itemId);
         if (itemToUpdate != null) {
             if (itemToUpdate.getOwner().getId() == userId) {
-                if (itemDto.getName() != null) {
+                if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
                     itemToUpdate.setName(itemDto.getName());
                 }
-                if (itemDto.getDescription() != null) {
+                if (itemDto.getDescription() != null && !itemDto.getDescription().isBlank()) {
                     itemToUpdate.setDescription(itemDto.getDescription());
                 }
                 if (itemDto.getAvailable() != null) {
@@ -64,27 +63,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(int itemId) {
-        Item item = itemDao.getItemById(itemId);
-        if (item != null) {
-            return ItemMapper.toItemDto(item);
-        } else {
-            throw new NotFoundException("Вещь с id=" + itemId + " не найдена.");
-        }
+    public ItemDto getItemDtoById(int itemId) {
+        Item item = getItemById(itemId);
+        return ItemMapper.toItemDto(item);
     }
 
     @Override
     public List<ItemDto> getItemsByUserId(int userId) {
-        User user = userDao.getUserById(userId);
-        if (user != null) {
-            List<Item> items = itemDao.getItemsByUserId(userId);
-            return items.stream()
-                    .map(ItemMapper::toItemDto)
-                    .collect(Collectors.toList());
-        } else {
-            throw new NotFoundException("Пользователь с id=" + userId + " не найден.");
-        }
-
+        userDao.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден."));
+        List<Item> items = itemDao.getItemsByUserId(userId);
+        return items.stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -96,19 +87,21 @@ public class ItemServiceImpl implements ItemService {
                     .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());
         } else {
-            return new ArrayList<>();
+            return List.of();
         }
     }
 
-    private int getId() {
-        return ++id;
-    }
+    //todo удалить метод
+//    private Boolean isItemDtoValid(ItemDto itemDto) {
+//        return (itemDto.getName() != null &&
+//                !itemDto.getName().isBlank() &&
+//                itemDto.getDescription() != null &&
+//                !itemDto.getDescription().isBlank() &&
+//                itemDto.getAvailable() != null);
+//    }
 
-    private Boolean isItemDtoValid(ItemDto itemDto) {
-        return (itemDto.getName() != null &&
-                !itemDto.getName().isBlank() &&
-                itemDto.getDescription() != null &&
-                !itemDto.getDescription().isBlank() &&
-                itemDto.getAvailable() != null);
+    private Item getItemById(int itemId) {
+        return itemDao.getItemById(itemId)
+                .orElseThrow(() -> new NotFoundException("Вещь с id=" + itemId + " не найдена."));
     }
 }

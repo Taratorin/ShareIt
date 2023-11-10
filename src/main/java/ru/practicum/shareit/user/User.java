@@ -10,9 +10,6 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class User {
     private int id;
-    @NotBlank
     private String name;
-    @Email
-    @NotBlank
     private String email;
 }
