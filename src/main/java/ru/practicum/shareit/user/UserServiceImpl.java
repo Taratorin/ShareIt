@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ConflictException;
@@ -15,13 +16,14 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
+    private final ModelMapper mapper;
 
     @Override
     public UserDto createUser(UserDto userDto) {
-        User user = UserMapper.toUser(userDto);
+        User user = mapper.map(userDto, User.class);
         if (!userDao.isUserByEmailExists(user)) {
             User userFromDao = userDao.createUser(user);
-            return UserMapper.toUserDto(userFromDao);
+            return mapper.map(userFromDao, UserDto.class);
         } else {
             throw new ConflictException("Пользователь с такой почтой уже существует.");
         }
@@ -41,21 +43,21 @@ public class UserServiceImpl implements UserService {
             }
             user.setEmail(email);
         }
-        return UserMapper.toUserDto(user);
+        return mapper.map(user, UserDto.class);
     }
 
     @Override
     public List<UserDto> getAllUsers() {
         List<User> allUsers = userDao.getAllUsers();
         return allUsers.stream()
-                .map(UserMapper::toUserDto)
+                .map(x -> mapper.map(x, UserDto.class))
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDto getUserDtoById(int id) {
         User user = getUserById(id);
-        return UserMapper.toUserDto(user);
+        return mapper.map(user, UserDto.class);
     }
 
     @Override

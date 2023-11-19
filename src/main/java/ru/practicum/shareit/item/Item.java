@@ -1,11 +1,11 @@
 package ru.practicum.shareit.item;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.User;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class Item {
     private int id;
     private String name;

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -17,16 +18,17 @@ public class ItemServiceImpl implements ItemService {
 
     private final UserDao userDao;
     private final ItemDao itemDao;
+    private final ModelMapper mapper;
 
     @Override
     public ItemDto createItem(ItemDto itemDto, int userId) {
         if (userDao.isUserByIdExists(userId)) {
-            Item item = ItemMapper.toItem(itemDto);
+            Item item = mapper.map(itemDto, Item.class);
             User user = userDao.getUserById(userId)
                     .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
             item.setOwner(user);
             Item itemFromDao = itemDao.createItem(item);
-            return ItemMapper.toItemDto(itemFromDao);
+            return mapper.map(itemFromDao, ItemDto.class);
         } else {
             throw new NotFoundException("Пользователь с id=" + userId + " не существует.");
         }
@@ -48,7 +50,7 @@ public class ItemServiceImpl implements ItemService {
             if (available != null) {
                 itemToUpdate.setAvailable(available);
             }
-            return ItemMapper.toItemDto(itemToUpdate);
+            return mapper.map(itemToUpdate, ItemDto.class);
         } else {
             throw new ForbiddenException("Запрещено изменять вещи другого пользователя.");
         }
@@ -57,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto getItemDtoById(int itemId) {
         Item item = getItemById(itemId);
-        return ItemMapper.toItemDto(item);
+        return mapper.map(item, ItemDto.class);
     }
 
     @Override
@@ -66,7 +68,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
         List<Item> items = itemDao.getItemsByUserId(userId);
         return items.stream()
-                .map(ItemMapper::toItemDto)
+                .map(x -> mapper.map(x, ItemDto.class))
                 .collect(Collectors.toList());
     }
 
@@ -76,7 +78,7 @@ public class ItemServiceImpl implements ItemService {
             String query = text.toLowerCase();
             List<Item> items = itemDao.searchItem(query);
             return items.stream()
-                    .map(ItemMapper::toItemDto)
+                    .map(x -> mapper.map(x, ItemDto.class))
                     .collect(Collectors.toList());
         } else {
             return List.of();
