@@ -2,8 +2,6 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -14,63 +12,47 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserDao userDao;
+    private final UserRepository userRepository;
 
     @Override
     public UserDto createUser(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
-        if (!userDao.isUserByEmailExists(user)) {
-            User userFromDao = userDao.createUser(user);
-            return UserMapper.toUserDto(userFromDao);
-        } else {
-            throw new ConflictException("Пользователь с такой почтой уже существует.");
-        }
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto, int id) {
-        User user = getUserById(id);
+    public UserDto updateUser(UserDto userDto, long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + id + " не существует."));
         String name = userDto.getName();
         String email = userDto.getEmail();
         if (name != null && !name.isBlank()) {
             user.setName(name);
         }
         if (email != null && !email.isBlank()) {
-            if (!userDao.isEmailUnique(email, id)) {
-                throw new ConflictException("Пользователь с такой почтой уже существует.");
-            }
             user.setEmail(email);
         }
-        return UserMapper.toUserDto(user);
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
     @Override
     public List<UserDto> getAllUsers() {
-        List<User> allUsers = userDao.getAllUsers();
+        List<User> allUsers = userRepository.findAll();
         return allUsers.stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public UserDto getUserDtoById(int id) {
-        User user = getUserById(id);
+    public UserDto getUserDtoById(long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + id + " не существует."));
         return UserMapper.toUserDto(user);
     }
 
     @Override
-    public void deleteUser(int id) {
-        if (userDao.isUserByIdExists(id)) {
-            userDao.deleteUser(id);
-        } else {
-            throw new BadRequestException("Пользователь с id=" + id + " не существует.");
-        }
-    }
-
-    @Override
-    public User getUserById(int id) {
-        return userDao.getUserById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + id + " не существует."));
+    public void deleteUser(long id) {
+        userRepository.deleteById(id);
     }
 
 }

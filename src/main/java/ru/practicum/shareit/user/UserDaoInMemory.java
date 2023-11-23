@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserDaoInMemory implements UserDao {
 
-    private final Map<Integer, User> users;
+    private final Map<Long, User> users;
     private int id;
 
     @Override

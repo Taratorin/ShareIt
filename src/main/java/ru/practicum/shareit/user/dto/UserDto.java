@@ -12,7 +12,7 @@ import javax.validation.constraints.NotEmpty;
 @Data
 @Builder
 public class UserDto {
-    private int id;
+    private long id;
     @NotBlank(groups = {Create.class})
     private String name;
     @Email(groups = {Create.class, Update.class})

@@ -49,7 +49,7 @@ public class ItemDaoInMemory implements ItemDao {
     @Override
     public List<Item> searchItem(String query) {
         return items.values().stream()
-                .filter(x -> (x.getAvailable() &&
+                .filter(x -> (x.getIs_available() &&
                         (x.getName().toLowerCase().contains(query) ||
                         x.getDescription().toLowerCase().contains(query))))
                 .collect(Collectors.toList());
