@@ -23,29 +23,29 @@ public class ItemController {
 
     @PostMapping()
     public ItemDto createItem(@Valid @RequestBody ItemDto itemDto,
-                              @RequestHeader(X_SHARER_USER_ID) @Min(1) int userId) {
+                              @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
         log.info("Получен запрос POST /items — добавление вещи");
-        return itemService.createItem(itemDto, userId);
+        return itemService.saveItem(itemDto, userId);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@RequestBody ItemDto itemDto,
-                              @PathVariable int itemId,
-                              @RequestHeader(X_SHARER_USER_ID) @Min(1) int userId) {
+                              @PathVariable long itemId,
+                              @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
         log.info("Получен запрос PATCH /items — обновление вещи");
         return itemService.updateItem(itemDto, itemId, userId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@PathVariable int itemId) {
+    public ItemDto getItem(@PathVariable long itemId) {
         log.info("Получен запрос GET /items/{itemId} — получение вещи по id");
-        return itemService.getItemDtoById(itemId);
+        return itemService.findItemDtoById(itemId);
     }
 
     @GetMapping()
-    public List<ItemDto> getItemByUserId(@RequestHeader(X_SHARER_USER_ID) @Min(1) int userId) {
+    public List<ItemDto> getItemByUserId(@RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
         log.info("Получен запрос GET /items — получение вещи по id пользователя");
-        return itemService.getItemsByUserId(userId);
+        return itemService.findItemsByUserId(userId);
     }
 
     @GetMapping("/search")

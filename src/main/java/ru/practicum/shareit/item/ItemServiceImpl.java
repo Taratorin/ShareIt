@@ -6,13 +6,9 @@ import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserDao;
 import ru.practicum.shareit.user.UserRepository;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,18 +19,18 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
 
     @Override
-    public ItemDto createItem(ItemDto itemDto, long userId) {
+    public ItemDto saveItem(ItemDto itemDto, long userId) {
             Item item = ItemMapper.toItem(itemDto);
-            userRepository.findById(userId)
-                    .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
-            item.setOwnerId(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
+        item.setOwner(user);
             return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
     public ItemDto updateItem(ItemDto itemDto, long itemId, long userId) {
         Item item = getItemById(itemId);
-        if (item.getOwnerId() == userId) {
+        if (item.getOwner().getId() == userId) {
             String name = itemDto.getName();
             String description = itemDto.getDescription();
             Boolean available = itemDto.getAvailable();
@@ -54,18 +50,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemDtoById(long itemId) {
+    public ItemDto findItemDtoById(long itemId) {
         Item item = getItemById(itemId);
         return ItemMapper.toItemDto(item);
     }
 
     @Override
-    public List<ItemDto> getItemsByUserId(long userId) {
+    public List<ItemDto> findItemsByUserId(long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
-        Set<Long> set = new HashSet<>(Collections.singleton(userId));
-        //todo here to continue
-        List<Item> items = itemRepository.findAllByOwnerIdIn(set);
+        List<Item> items = itemRepository.findAllByOwnerId(userId);
         return items.stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -74,8 +68,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> searchItem(String text) {
         if (!text.isBlank()) {
-            String query = text.toLowerCase();
-            List<Item> items = itemDao.searchItem(query);
+            List<Item> items = itemRepository.findAllByDescriptionContainingIgnoreCaseAndIsAvailableIsTrue(text);
             return items.stream()
                     .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 
@@ -16,14 +17,14 @@ import javax.persistence.*;
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
     private String name;
     private String description;
     @Column(name = "is_available")
     private Boolean isAvailable;
-    @Column(name = "owner_id")
-    @ManyToMany
-    private Long ownerId;
-    @Column(name = "request_id")
-    private Long requestId;
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
+//    @Column(name = "request_id")
+//    private long requestId;
 }
