@@ -1,16 +1,11 @@
 package ru.practicum.shareit.item;
 
-import lombok.Data;
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.dto.BookingForDto;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.user.User;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @UtilityClass
