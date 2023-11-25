@@ -79,7 +79,7 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findAllByBookerOrderByIdDesc(user);
                 break;
             case "CURRENT":
-                bookings = bookingRepository.findAllByBookerAndStartBeforeAndEndAfterOrderByIdDesc(user, LocalDateTime.now(), LocalDateTime.now());
+                bookings = bookingRepository.findAllByBookerAndStartBeforeAndEndAfterOrderById(user, LocalDateTime.now(), LocalDateTime.now());
                 break;
             case "PAST":
                 bookings = bookingRepository.findAllByBookerAndEndBeforeOrderByIdDesc(user, LocalDateTime.now());
@@ -110,10 +110,10 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findAllBookingForOwner(user);
                 break;
             case "CURRENT":
-                bookings = bookingRepository.findAllByBookerAndStartBeforeAndEndAfterOrderByIdDesc(user, LocalDateTime.now(), LocalDateTime.now());
+                bookings = bookingRepository.findCurrentBookingForOwner(user, LocalDateTime.now(), LocalDateTime.now());
                 break;
             case "PAST":
-                bookings = bookingRepository.findAllByBookerAndEndBeforeOrderByIdDesc(user, LocalDateTime.now());
+                bookings = bookingRepository.findPastBookingForOwner(user, LocalDateTime.now());
                 break;
             case "FUTURE":
                 bookings = bookingRepository.findFutureBookingForOwner(user, LocalDateTime.now());

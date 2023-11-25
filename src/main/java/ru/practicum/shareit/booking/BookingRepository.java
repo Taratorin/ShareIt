@@ -12,18 +12,20 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByBookerOrderByIdDesc(User user);
     List<Booking> findAllByBookerAndEndBeforeOrderByIdDesc(User user, LocalDateTime time);
     List<Booking> findAllByBookerAndStartAfterOrderByIdDesc(User user, LocalDateTime time);
-    List<Booking> findAllByBookerAndStartBeforeAndEndAfterOrderByIdDesc(User user, LocalDateTime start, LocalDateTime end);
+    List<Booking> findAllByBookerAndStartBeforeAndEndAfterOrderById(User user, LocalDateTime start, LocalDateTime end);
     List<Booking> findAllByBookerAndStatusOrderByIdDesc(User user, BookingStatus status);
     List<Booking> findAllByItem(Item item);
-
+    List<Booking> findAllByItemAndBookerAndStatusOrderById(Item item, User user, BookingStatus status);
     @Query("select booking from Booking as booking join booking.item as it where it.owner = ?1 order by booking.id desc")
     List<Booking> findAllBookingForOwner(User user);
     @Query("select booking from Booking as booking join booking.item as it where it.owner = ?1 and booking.start > ?2 order by booking.id desc")
     List<Booking> findFutureBookingForOwner(User user, LocalDateTime time);
-
+    @Query("select booking from Booking as booking join booking.item as it where it.owner = ?1 and booking.start < ?2 and booking.end > ?3 order by booking.id desc")
+    List<Booking> findCurrentBookingForOwner(User user, LocalDateTime start, LocalDateTime end);
+    @Query("select booking from Booking as booking join booking.item as it where it.owner = ?1 and booking.end < ?2 order by booking.id desc")
+    List<Booking> findPastBookingForOwner(User user, LocalDateTime time);
     @Query("select booking from Booking as booking join booking.item as it where it.owner = ?1 and booking.status = 'WAITING' order by booking.id desc")
     List<Booking> findWaitingBookingForOwner(User user);
-
     @Query("select booking from Booking as booking join booking.item as it where it.owner = ?1 and booking.status = 'REJECTED' order by booking.id desc")
     List<Booking> findRejectedBookingForOwner(User user);
 }

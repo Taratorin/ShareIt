@@ -5,25 +5,28 @@ import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.dto.BookingForDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @UtilityClass
 public class ItemMapper {
 
-    public ItemDto toItemDto(Item item) {
+    public ItemDto toItemDto(Item item, List<CommentDto> comments) {
         return ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getIsAvailable())
+                .comments(comments)
                 .build();
     }
 
-    public ItemDto toItemDto(Item item, Booking lastBooking, Booking nextBooking) {
+    public ItemDto toItemDto(Item item, Booking lastBooking, Booking nextBooking, List<CommentDto> comments) {
         BookingForDto lastBookingForDto = null;
         BookingForDto nextBookingForDto = null;
         if (lastBooking != null) {
@@ -39,6 +42,7 @@ public class ItemMapper {
                 .available(item.getIsAvailable())
                 .lastBooking(lastBookingForDto)
                 .nextBooking(nextBookingForDto)
+                .comments(comments)
                 .build();
     }
 
