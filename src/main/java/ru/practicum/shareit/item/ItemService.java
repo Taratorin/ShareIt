@@ -9,7 +9,7 @@ public interface ItemService {
 
     ItemDto updateItem(ItemDto itemDto, long itemId, long userId);
 
-    ItemDto findItemDtoById(long itemId);
+    ItemDto findItemDtoById(long itemId, long userId);
 
     List<ItemDto> findItemsByUserId(long userId);
 

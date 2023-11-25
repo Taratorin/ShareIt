@@ -2,13 +2,19 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,14 +23,15 @@ public class ItemServiceImpl implements ItemService {
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
     public ItemDto saveItem(ItemDto itemDto, long userId) {
-            Item item = ItemMapper.toItem(itemDto);
+        Item item = ItemMapper.toItem(itemDto);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
         item.setOwner(user);
-            return ItemMapper.toItemDto(itemRepository.save(item));
+        return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
@@ -50,19 +57,65 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto findItemDtoById(long itemId) {
+    public ItemDto findItemDtoById(long itemId, long userId) {
         Item item = getItemById(itemId);
-        return ItemMapper.toItemDto(item);
+        if (item.getOwner().getId() == userId) {
+            List<Booking> bookings = bookingRepository.findAllByItem(item);
+            Booking lastBooking = null;
+            Booking nextBooking = null;
+
+            Optional<Booking> lastBookingOptional = bookings.stream()
+                    .filter(x -> x.getEnd().isBefore(LocalDateTime.now()))
+                    .max((Comparator.comparing(Booking::getEnd)));
+            if (lastBookingOptional.isPresent()) {
+                lastBooking = lastBookingOptional.get();
+            }
+
+            Optional<Booking> nextBookingOptional = bookings.stream()
+                    .filter(x -> x.getStart().isAfter(LocalDateTime.now()))
+                    .min((Comparator.comparing(Booking::getStart)));
+            if (nextBookingOptional.isPresent()) {
+                nextBooking = nextBookingOptional.get();
+            }
+
+            return ItemMapper.toItemDto(item, lastBooking, nextBooking);
+        } else {
+            return ItemMapper.toItemDto(item);
+        }
     }
+
 
     @Override
     public List<ItemDto> findItemsByUserId(long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
         List<Item> items = itemRepository.findAllByOwnerId(userId);
-        return items.stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+
+        List<ItemDto> itemDtos = new ArrayList<>(items.size());
+
+        for (Item item : items) {
+            List<Booking> bookings = bookingRepository.findAllByItem(item);
+            Booking lastBooking = null;
+            Booking nextBooking = null;
+
+            Optional<Booking> lastBookingOptional = bookings.stream()
+                    .filter(x -> x.getEnd().isBefore(LocalDateTime.now()))
+                    .max((Comparator.comparing(Booking::getEnd)));
+            if (lastBookingOptional.isPresent()) {
+                lastBooking = lastBookingOptional.get();
+            }
+
+            Optional<Booking> nextBookingOptional = bookings.stream()
+                    .filter(x -> x.getStart().isAfter(LocalDateTime.now()))
+                    .min((Comparator.comparing(Booking::getStart)));
+            if (nextBookingOptional.isPresent()) {
+                nextBooking = nextBookingOptional.get();
+            }
+            ItemDto itemDto = ItemMapper.toItemDto(item, lastBooking, nextBooking);
+            itemDtos.add(itemDto);
+        }
+        
+        return itemDtos;
     }
 
     @Override

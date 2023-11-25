@@ -41,21 +41,21 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public BookingDto findBookingDto(@PathVariable long bookingId,
-                              @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
+                                     @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
         log.info("Получен запрос GET /bookings/{bookingId} — получение бронирования по id");
         return bookingService.findBookingDtoById(bookingId, userId);
     }
 
     @GetMapping()
     public List<BookingDto> findBookingDto(@RequestHeader(X_SHARER_USER_ID) @Min(1) long userId,
-                                     @RequestParam(defaultValue = "ALL") String state) {
+                                           @RequestParam(defaultValue = "ALL") String state) {
         log.info("Получен запрос GET /bookings — получение списка всех бронирований текущего пользователя");
         return bookingService.findBookingDto(userId, state);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> findBookingDtoForOwner(@RequestHeader(X_SHARER_USER_ID) @Min(1) long userId,
-                                           @RequestParam(defaultValue = "ALL") String state) {
+                                                   @RequestParam(defaultValue = "ALL") String state) {
         log.info("Получен запрос GET /bookings/owner — получение списка бронирований для всех вещей текущего пользователя");
         return bookingService.findBookingDtoForOwner(userId, state);
     }

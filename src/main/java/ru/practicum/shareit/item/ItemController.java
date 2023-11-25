@@ -37,9 +37,10 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@PathVariable long itemId) {
+    public ItemDto getItem(@PathVariable long itemId,
+                           @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
         log.info("Получен запрос GET /items/{itemId} — получение вещи по id");
-        return itemService.findItemDtoById(itemId);
+        return itemService.findItemDtoById(itemId, userId);
     }
 
     @GetMapping()
