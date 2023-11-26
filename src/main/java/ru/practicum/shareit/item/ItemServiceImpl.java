@@ -14,10 +14,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -67,80 +64,46 @@ public class ItemServiceImpl implements ItemService {
         List<CommentDto> commentDtos = getCommentDtos(item);
         if (item.getOwner().getId() == userId) {
             List<Booking> bookings = bookingRepository.findAllByItem(item);
-            Booking lastBooking = null;
-            Booking nextBooking = null;
-
-            Optional<Booking> lastBookingOptional = bookings.stream()
-                    .filter(x -> x.getStart().isBefore(LocalDateTime.now()))
-                    .max((Comparator.comparing(Booking::getStart)));
-            if (lastBookingOptional.isPresent()) {
-                lastBooking = lastBookingOptional.get();
-            }
-
-            Optional<Booking> nextBookingOptional = bookings.stream()
-                    .filter(x -> x.getStart().isAfter(LocalDateTime.now()))
-                    .filter(x -> x.getStatus().equals(BookingStatus.APPROVED))
-                    .min((Comparator.comparing(Booking::getStart)));
-            if (nextBookingOptional.isPresent()) {
-                nextBooking = nextBookingOptional.get();
-            }
+            Booking lastBooking = getLastOrNextBooking(bookings, true);
+            Booking nextBooking = getLastOrNextBooking(bookings, false);
             return ItemMapper.toItemDto(item, lastBooking, nextBooking, commentDtos);
         } else {
             return ItemMapper.toItemDto(item, commentDtos);
         }
     }
 
-
     @Override
     public List<ItemDto> findItemsByUserId(long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
         List<Item> items = itemRepository.findAllByOwnerIdOrderById(userId);
-
-        List<ItemDto> itemDtos = new ArrayList<>(items.size());
-
+        Map<Item, List<Booking>> bookingMap = bookingRepository.findAllByItemIn(items).stream()
+                .collect(Collectors.groupingBy(Booking::getItem));
+        Map<Item, List<Comment>> commentMap = commentRepository.findAllByItemIn(items).stream()
+                .collect(Collectors.groupingBy(Comment::getItem));
+        List<ItemDto> itemDtos = new ArrayList<>();
         for (Item item : items) {
-            List<Booking> bookings = bookingRepository.findAllByItem(item);
-            Booking lastBooking = null;
-            Booking nextBooking = null;
-
-            Optional<Booking> lastBookingOptional = bookings.stream()
-                    .filter(x -> x.getEnd().isBefore(LocalDateTime.now()))
-                    .max((Comparator.comparing(Booking::getEnd)));
-            if (lastBookingOptional.isPresent()) {
-                lastBooking = lastBookingOptional.get();
-            }
-
-            Optional<Booking> nextBookingOptional = bookings.stream()
-                    .filter(x -> x.getStart().isAfter(LocalDateTime.now()))
-                    .min((Comparator.comparing(Booking::getStart)));
-            if (nextBookingOptional.isPresent()) {
-                nextBooking = nextBookingOptional.get();
-            }
-            List<CommentDto> commentDtos = getCommentDtos(item);
-
+            List<Booking> bookings = bookingMap.getOrDefault(item, new ArrayList<>());
+            List<Comment> comments = commentMap.getOrDefault(item, new ArrayList<>());
+            List<CommentDto> commentDtos = comments.stream()
+                    .map(CommentMapper::toCommentDto).collect(Collectors.toList());
+            Booking lastBooking = getLastOrNextBooking(bookings, true);
+            Booking nextBooking = getLastOrNextBooking(bookings, false);
             ItemDto itemDto = ItemMapper.toItemDto(item, lastBooking, nextBooking, commentDtos);
             itemDtos.add(itemDto);
         }
         return itemDtos;
     }
 
-    private List<CommentDto> getCommentDtos(Item item) {
-        return commentRepository.findAllByItem(item).stream()
-                .map(CommentMapper::toCommentDto)
-                .collect(Collectors.toList());
-    }
-
     @Override
     public List<ItemDto> searchItem(String text) {
         if (!text.isBlank()) {
-            List<Item> items = itemRepository.findAllByDescriptionContainingIgnoreCaseAndIsAvailableIsTrue(text);
-            return items.stream()
-                    .map(item -> {
-                        List<CommentDto> commentDtos = getCommentDtos(item);
-                        return ItemMapper.toItemDto(item, commentDtos);
-                    })
-                    .collect(Collectors.toList());
+            List<Item> items = itemRepository
+                    .findAllByDescriptionContainingIgnoreCaseAndIsAvailableIsTrue(text);
+            return items.stream().map(item -> {
+                List<CommentDto> commentDtos = getCommentDtos(item);
+                return ItemMapper.toItemDto(item, commentDtos);
+            }).collect(Collectors.toList());
         } else {
             return List.of();
         }
@@ -150,7 +113,8 @@ public class ItemServiceImpl implements ItemService {
     public CommentDto saveComment(CommentDto commentDto, long itemId, long userId) {
         Item item = getItemById(itemId);
         User author = findUserById(userId);
-        List<Booking> bookings = bookingRepository.findAllByItemAndBookerAndStatusOrderById(item, author, BookingStatus.APPROVED);
+        List<Booking> bookings = bookingRepository
+                .findAllByItemAndBookerAndStatusOrderById(item, author, BookingStatus.APPROVED);
         if (!bookings.isEmpty()) {
             if (bookings.get(bookings.size() - 1).getEnd().isAfter(LocalDateTime.now())) {
                 throw new BadRequestException("Бронирование ещё не завершилось.");
@@ -163,6 +127,34 @@ public class ItemServiceImpl implements ItemService {
         } else {
             throw new BadRequestException("Пользователь не бронировал вещь с id=" + itemId);
         }
+    }
+
+    private Booking getLastOrNextBooking(List<Booking> bookings, boolean flag) {
+        if (flag) {
+            Booking lastBooking = null;
+            Optional<Booking> lastBookingOptional = bookings.stream()
+                    .filter(x -> x.getStart().isBefore(LocalDateTime.now()))
+                    .max((Comparator.comparing(Booking::getEnd)));
+            if (lastBookingOptional.isPresent()) {
+                lastBooking = lastBookingOptional.get();
+            }
+            return lastBooking;
+        } else {
+            Booking nextBooking = null;
+            Optional<Booking> nextBookingOptional = bookings.stream()
+                    .filter(x -> x.getStart().isAfter(LocalDateTime.now()))
+                    .filter(x -> x.getStatus().equals(BookingStatus.APPROVED))
+                    .min((Comparator.comparing(Booking::getStart)));
+            if (nextBookingOptional.isPresent()) {
+                nextBooking = nextBookingOptional.get();
+            }
+            return nextBooking;
+        }
+    }
+
+    private List<CommentDto> getCommentDtos(Item item) {
+        return commentRepository.findAllByItem(item).stream()
+                .map(CommentMapper::toCommentDto).collect(Collectors.toList());
     }
 
     private Item getItemById(long itemId) {

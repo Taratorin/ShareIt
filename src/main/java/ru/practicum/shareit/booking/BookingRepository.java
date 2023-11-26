@@ -21,6 +21,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findAllByItem(Item item);
 
+    List<Booking> findAllByItemIn(List<Item> items);
+
     List<Booking> findAllByItemAndBookerAndStatusOrderById(Item item, User user, BookingStatus status);
 
     @Query("select booking from Booking as booking join booking.item as it where it.owner = ?1 order by booking.id desc")

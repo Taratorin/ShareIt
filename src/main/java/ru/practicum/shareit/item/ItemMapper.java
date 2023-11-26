@@ -25,10 +25,14 @@ public class ItemMapper {
         BookingForDto lastBookingForDto = null;
         BookingForDto nextBookingForDto = null;
         if (lastBooking != null) {
-            lastBookingForDto = new BookingForDto(lastBooking.getId(), lastBooking.getStart(), lastBooking.getEnd(), lastBooking.getItem(), lastBooking.getBooker().getId(), lastBooking.getStatus());
+            lastBookingForDto = new BookingForDto(lastBooking.getId(),
+                    lastBooking.getStart(), lastBooking.getEnd(), lastBooking.getItem(),
+                    lastBooking.getBooker().getId(), lastBooking.getStatus());
         }
         if (nextBooking != null) {
-            nextBookingForDto = new BookingForDto(nextBooking.getId(), nextBooking.getStart(), nextBooking.getEnd(), nextBooking.getItem(), nextBooking.getBooker().getId(), nextBooking.getStatus());
+            nextBookingForDto = new BookingForDto(nextBooking.getId(), nextBooking.getStart(),
+                    nextBooking.getEnd(), nextBooking.getItem(),
+                    nextBooking.getBooker().getId(), nextBooking.getStatus());
         }
         return ItemDto.builder()
                 .id(item.getId())
