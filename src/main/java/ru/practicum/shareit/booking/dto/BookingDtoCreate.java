@@ -3,9 +3,6 @@ package ru.practicum.shareit.booking.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.booking.BookingStatus;
-import ru.practicum.shareit.item.dto.ItemBookingDto;
-import ru.practicum.shareit.user.dto.UserBookingDto;
 import ru.practicum.shareit.valid.StartBeforeEndDateValid;
 
 import javax.validation.constraints.Future;
@@ -17,15 +14,11 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @StartBeforeEndDateValid
-public class BookingDto {
-    private long id;
+public class BookingDtoCreate {
     @FutureOrPresent
     private LocalDateTime start;
     @Future
     private LocalDateTime end;
-    private ItemBookingDto item;
-    private UserBookingDto booker;
     @Min(1)
     private long itemId;
-    private BookingStatus status;
 }

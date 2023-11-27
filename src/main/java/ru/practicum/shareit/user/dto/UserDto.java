@@ -8,14 +8,17 @@ import ru.practicum.shareit.config.Update;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 @Data
 @Builder
 public class UserDto {
     private long id;
     @NotBlank(groups = {Create.class})
+    @Size(max = 255)
     private String name;
     @Email(groups = {Create.class, Update.class})
     @NotEmpty(groups = {Create.class})
+    @Size(max = 512)
     private String email;
 }

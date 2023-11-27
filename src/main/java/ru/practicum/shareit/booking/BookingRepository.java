@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.Item;
@@ -9,9 +10,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+
     List<Booking> findAllByBookerOrderByIdDesc(User user);
 
-    List<Booking> findAllByBookerAndEndBeforeOrderByIdDesc(User user, LocalDateTime time);
+    List<Booking> findAllByBookerAndEndBefore(User user, LocalDateTime time, Sort sort);
 
     List<Booking> findAllByBookerAndStartAfterOrderByIdDesc(User user, LocalDateTime time);
 
@@ -19,11 +21,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findAllByBookerAndStatusOrderByIdDesc(User user, BookingStatus status);
 
-    List<Booking> findAllByItem(Item item);
+    List<Booking> findAllByItemAndStatusOrderByStartDesc(Item item, BookingStatus status);
 
-    List<Booking> findAllByItemIn(List<Item> items);
+    List<Booking> findAllByItemInAndStatusOrderByStartDesc(List<Item> items, BookingStatus status);
 
-    List<Booking> findAllByItemAndBookerAndStatusOrderById(Item item, User user, BookingStatus status);
+    Boolean existsByItemAndBookerAndStatusAndEndLessThanEqual(Item item, User user, BookingStatus status, LocalDateTime end);
+
+    Boolean existsByItemAndBookerAndStatus(Item item, User booker, BookingStatus status);
 
     @Query("select booking from Booking as booking join booking.item as it where it.owner = ?1 order by booking.id desc")
     List<Booking> findAllBookingForOwner(User user);

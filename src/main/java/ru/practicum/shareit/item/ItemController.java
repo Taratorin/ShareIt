@@ -4,8 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.config.Create;
+import ru.practicum.shareit.config.Update;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentDtoCreate;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoCreateUpdate;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -23,26 +27,26 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping()
-    public ItemDto saveItem(@Valid @RequestBody ItemDto itemDto,
-                            @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
+    public ItemDtoCreateUpdate saveItem(@Validated(Create.class) @RequestBody ItemDtoCreateUpdate itemDtoCreateUpdate,
+                                        @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
         log.info("Получен запрос POST /items — добавление вещи");
-        return itemService.saveItem(itemDto, userId);
-    }
-
-    @PostMapping("/{itemId}/comment")
-    public CommentDto saveComment(@Valid @RequestBody CommentDto commentDto,
-                               @PathVariable @Min(1) long itemId,
-                               @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
-        log.info("Получен запрос POST /items/{itemId}/comment — добавление комментария к вещи");
-        return itemService.saveComment(commentDto, itemId, userId);
+        return itemService.saveItem(itemDtoCreateUpdate, userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestBody ItemDto itemDto,
+    public ItemDtoCreateUpdate updateItem(@Validated(Update.class) @RequestBody ItemDtoCreateUpdate itemDtoCreateUpdate,
                               @PathVariable @Min(1) long itemId,
                               @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
         log.info("Получен запрос PATCH /items — обновление вещи");
-        return itemService.updateItem(itemDto, itemId, userId);
+        return itemService.updateItem(itemDtoCreateUpdate, itemId, userId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto saveComment(@Valid @RequestBody CommentDtoCreate commentDtoCreate,
+                                  @PathVariable @Min(1) long itemId,
+                                  @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
+        log.info("Получен запрос POST /items/{itemId}/comment — добавление комментария к вещи");
+        return itemService.saveComment(commentDtoCreate, itemId, userId);
     }
 
     @GetMapping("/{itemId}")

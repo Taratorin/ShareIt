@@ -2,14 +2,28 @@ package ru.practicum.shareit.item;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.item.dto.BookingForDto;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.*;
 
 import java.util.List;
 
 @UtilityClass
 public class ItemMapper {
+
+    public ItemDtoCreateUpdate toItemDtoCreateUpdate(Item item) {
+        return ItemDtoCreateUpdate.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getIsAvailable())
+                .build();
+    }
+
+    public ItemBookingDto toItemBookingDto(Item item) {
+        return ItemBookingDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .build();
+    }
 
     public ItemDto toItemDto(Item item, List<CommentDto> comments) {
         return ItemDto.builder()
@@ -26,12 +40,12 @@ public class ItemMapper {
         BookingForDto nextBookingForDto = null;
         if (lastBooking != null) {
             lastBookingForDto = new BookingForDto(lastBooking.getId(),
-                    lastBooking.getStart(), lastBooking.getEnd(), lastBooking.getItem(),
+                    lastBooking.getStart(), lastBooking.getEnd(), ItemMapper.toItemBookingDto(lastBooking.getItem()),
                     lastBooking.getBooker().getId(), lastBooking.getStatus());
         }
         if (nextBooking != null) {
             nextBookingForDto = new BookingForDto(nextBooking.getId(), nextBooking.getStart(),
-                    nextBooking.getEnd(), nextBooking.getItem(),
+                    nextBooking.getEnd(), ItemMapper.toItemBookingDto(nextBooking.getItem()),
                     nextBooking.getBooker().getId(), nextBooking.getStatus());
         }
         return ItemDto.builder()
@@ -54,4 +68,11 @@ public class ItemMapper {
                 .build();
     }
 
+    public Item toItem(ItemDtoCreateUpdate itemDtoCreateUpdate) {
+        return Item.builder()
+                .name(itemDtoCreateUpdate.getName())
+                .description(itemDtoCreateUpdate.getDescription())
+                .isAvailable(itemDtoCreateUpdate.getAvailable())
+                .build();
+    }
 }
