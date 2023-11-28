@@ -21,7 +21,7 @@ public class UserController {
     @PostMapping()
     public UserDto createUser(@Validated(Create.class) @RequestBody UserDto userDto) {
         log.info("Получен запрос POST /users — добавление пользователя");
-        return userService.createUser(userDto);
+        return userService.saveUser(userDto);
     }
 
     @PatchMapping("/{id}")
@@ -33,13 +33,13 @@ public class UserController {
     @GetMapping()
     public List<UserDto> getAllUsers() {
         log.info("Получен запрос GET /users — получение пользователей");
-        return userService.getAllUsers();
+        return userService.findAllUsers();
     }
 
     @GetMapping("/{id}")
     public UserDto getUser(@PathVariable int id) {
         log.info("Получен запрос GET /users/{Id} — получение пользователя по id");
-        return userService.getUserDtoById(id);
+        return userService.findUserDtoById(id);
     }
 
     @DeleteMapping("/{id}")

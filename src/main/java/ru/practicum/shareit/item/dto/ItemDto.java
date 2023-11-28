@@ -4,18 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 public class ItemDto {
-    private int id;
-    @NotBlank
+    private long id;
     private String name;
-    @NotBlank
     private String description;
-    @NotNull
     private Boolean available;
+    private BookingForDto lastBooking;
+    private BookingForDto nextBooking;
+    private List<CommentDto> comments;
 }
