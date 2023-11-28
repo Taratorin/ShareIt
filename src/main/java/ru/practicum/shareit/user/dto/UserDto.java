@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 public class UserDto {
     private long id;
     @NotBlank(groups = {Create.class})
-    @Size(max = 255)
+    @Size(max = 255, groups = {Create.class, Update.class})
     private String name;
     @Email(groups = {Create.class, Update.class})
     @NotEmpty(groups = {Create.class})
