@@ -88,12 +88,12 @@ public class ItemServiceImpl implements ItemService {
         Map<Item, List<Comment>> commentMap = commentRepository.findAllByItemIn(items).stream()
                 .collect(Collectors.groupingBy(Comment::getItem));
         List<ItemDto> itemDtos = new ArrayList<>(items.size());
+        LocalDateTime now = LocalDateTime.now();
         for (Item item : items) {
             List<Booking> bookings = bookingMap.getOrDefault(item, List.of());
             List<Comment> comments = commentMap.getOrDefault(item, List.of());
             List<CommentDto> commentDtos = comments.stream()
                     .map(CommentMapper::toCommentDto).collect(Collectors.toList());
-            LocalDateTime now = LocalDateTime.now();
             Booking lastBooking = getLastOrNextBooking(bookings, true, now);
             Booking nextBooking = getLastOrNextBooking(bookings, false, now);
             ItemDto itemDto = ItemMapper.toItemDto(item, lastBooking, nextBooking, commentDtos);
@@ -106,9 +106,13 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> searchItem(String text) {
         if (!text.isBlank()) {
             List<Item> items = itemRepository
-                    .findAllByDescriptionContainingIgnoreCaseAndIsAvailableIsTrue(text);
+                    .findAllByIsAvailableIsTrueAndDescriptionContainingIgnoreCaseOrNameContainingIgnoreCase(text, text);
+            Map<Item, List<Comment>> commentMap = commentRepository.findAllByItemIn(items).stream()
+                    .collect(Collectors.groupingBy(Comment::getItem));
             return items.stream().map(item -> {
-                List<CommentDto> commentDtos = getCommentDtos(item);
+                List<CommentDto> commentDtos = commentMap.getOrDefault(item, List.of()).stream()
+                        .map(CommentMapper::toCommentDto)
+                        .collect(Collectors.toList());
                 return ItemMapper.toItemDto(item, commentDtos);
             }).collect(Collectors.toList());
         } else {
