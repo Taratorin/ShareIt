@@ -6,7 +6,6 @@ import ru.practicum.shareit.request.dto.ItemRequestDtoCreate;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @UtilityClass
 public class ItemRequestMapper {
@@ -27,12 +26,4 @@ public class ItemRequestMapper {
                 .build();
     }
 
-    public ItemRequestDto toItemRequestDto(ItemRequest itemRequest, List<Response> responses) {
-        return ItemRequestDto.builder()
-                .id(itemRequest.getId())
-                .description(itemRequest.getDescription())
-                .created(itemRequest.getCreated())
-                .responses(responses)
-                .build();
-    }
 }

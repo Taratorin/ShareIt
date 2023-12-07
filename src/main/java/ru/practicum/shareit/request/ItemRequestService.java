@@ -9,4 +9,9 @@ public interface ItemRequestService {
     ItemRequestDto saveRequest(ItemRequestDtoCreate itemRequestDtoCreate, long requestorId);
 
     List<ItemRequestDto> findItemRequests(long userId);
+
+    List<ItemRequestDto> findItemRequestsPages(long userId, int from, int size);
+
+    ItemRequestDto findItemRequestById(long userId, long requestId);
+
 }

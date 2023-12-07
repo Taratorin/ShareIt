@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.request.ItemRequest;
 
 import java.util.List;
 
@@ -10,12 +11,18 @@ import java.util.List;
 public class ItemMapper {
 
     public ItemDtoCreateUpdate toItemDtoCreateUpdate(Item item) {
-        return ItemDtoCreateUpdate.builder()
+        ItemDtoCreateUpdate itemDtoCreateUpdate = ItemDtoCreateUpdate.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getIsAvailable())
                 .build();
+        ItemRequest itemRequest = item.getRequest();
+        if (itemRequest != null) {
+            Long requestId = itemRequest.getId();
+            itemDtoCreateUpdate.setRequestId(requestId);
+        }
+        return itemDtoCreateUpdate;
     }
 
     public ItemBookingDto toItemBookingDto(Item item) {
