@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -90,10 +92,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findItemsByUserId(long userId) {
+    public List<ItemDto> findItemsByUserId(long userId, int from, int size) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
-        List<Item> items = itemRepository.findAllByOwnerIdOrderById(userId);
+        int pageNumber = from / size;
+        Pageable pageable = PageRequest.of(pageNumber, size);
+        List<Item> items = itemRepository.findAllByOwnerIdOrderById(userId, pageable);
         Map<Item, List<Booking>> bookingMap = bookingRepository.findAllByItemInAndStatusOrderByStartDesc(items, BookingStatus.APPROVED)
                 .stream()
                 .collect(Collectors.groupingBy(Booking::getItem));
@@ -115,10 +119,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItem(String text) {
+    public List<ItemDto> searchItem(String text, int from, int size) {
         if (!text.isBlank()) {
+            int pageNumber = from / size;
+            Pageable pageable = PageRequest.of(pageNumber, size);
             List<Item> items = itemRepository
-                    .findAllByIsAvailableIsTrueAndDescriptionContainingIgnoreCaseOrNameContainingIgnoreCase(text, text);
+                    .findAllByIsAvailableIsTrueAndDescriptionContainingIgnoreCaseOrNameContainingIgnoreCase(text, text, pageable);
             Map<Item, List<Comment>> commentMap = commentRepository.findAllByItemIn(items).stream()
                     .collect(Collectors.groupingBy(Comment::getItem));
             return items.stream().map(item -> {

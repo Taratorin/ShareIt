@@ -48,11 +48,13 @@ public class BookingController {
 
     @GetMapping()
     public List<BookingDto> findBookingDto(@RequestHeader(X_SHARER_USER_ID) @Min(1) long userId,
+                                           @RequestParam(defaultValue = "1") @Min(0) int from,
+                                           @RequestParam(defaultValue = "10") @Min(1) int size,
                                            @RequestParam(defaultValue = "ALL") String state) {
         log.info("Получен запрос GET /bookings — получение списка всех бронирований текущего пользователя");
         try {
             BookingState bookingState = BookingState.valueOf(state);
-            return bookingService.findBookingDto(userId, bookingState);
+            return bookingService.findBookingDto(userId, bookingState, from, size);
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("Unknown state: " + state);
         }
@@ -60,11 +62,13 @@ public class BookingController {
 
     @GetMapping("/owner")
     public List<BookingDto> findBookingDtoForOwner(@RequestHeader(X_SHARER_USER_ID) @Min(1) long userId,
+                                                   @RequestParam(defaultValue = "1") @Min(0) int from,
+                                                   @RequestParam(defaultValue = "10") @Min(1) int size,
                                                    @RequestParam(defaultValue = "ALL") String state) {
         log.info("Получен запрос GET /bookings/owner — получение списка бронирований для всех вещей текущего пользователя");
         try {
             BookingState bookingState = BookingState.valueOf(state);
-            return bookingService.findBookingDtoForOwner(userId, bookingState);
+            return bookingService.findBookingDtoForOwner(userId, bookingState, from, size);
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("Unknown state: " + state);
         }

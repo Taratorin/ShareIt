@@ -7,8 +7,7 @@ import ru.practicum.shareit.user.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Getter @Setter @ToString
 @Builder
 @Entity
 @Table(name = "bookings", schema = "public")

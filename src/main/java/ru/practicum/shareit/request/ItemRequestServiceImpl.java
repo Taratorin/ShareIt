@@ -54,7 +54,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> findItemRequestsPages(long userId, int from, int size) {
         User user = findUserById(userId);
-        int pageNumber = (from + 1) / size;
+        int pageNumber = from / size;
         Pageable pageable = PageRequest.of(pageNumber, size);
         List<ItemRequest> itemRequests = new ArrayList<>(requestRepository.findAllByRequestorNotOrderByCreatedDesc(user, pageable));
         Map<ItemRequest, List<Item>> items = itemRepository.findAllByRequestInOrderById(itemRequests).stream()

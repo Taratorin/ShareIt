@@ -57,15 +57,19 @@ public class ItemController {
     }
 
     @GetMapping()
-    public List<ItemDto> getItemByUserId(@RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
+    public List<ItemDto> getItemByUserId(@RequestHeader(X_SHARER_USER_ID) @Min(1) long userId,
+                                         @RequestParam(defaultValue = "1") @Min(0) int from,
+                                         @RequestParam(defaultValue = "10") @Min(1) int size) {
         log.info("Получен запрос GET /items — получение вещи по id пользователя");
-        return itemService.findItemsByUserId(userId);
+        return itemService.findItemsByUserId(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestParam String text) {
+    public List<ItemDto> searchItem(@RequestParam String text,
+                                    @RequestParam(defaultValue = "1") @Min(0) int from,
+                                    @RequestParam(defaultValue = "10") @Min(1) int size) {
         log.info("Получен запрос GET /items/search — поиск вещи по значению строки");
-        return itemService.searchItem(text);
+        return itemService.searchItem(text, from, size);
     }
 
 }

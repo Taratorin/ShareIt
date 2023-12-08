@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -13,8 +16,8 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -72,63 +75,51 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> findBookingDto(long userId, BookingState state) {
-        User user = findUserById(userId);
-        List<Booking> bookings = null;
-        switch (state) {
-            case ALL:
-                bookings = bookingRepository.findAllByBookerOrderByIdDesc(user);
-                break;
-            case CURRENT:
-                bookings = bookingRepository.findAllByBookerAndStartBeforeAndEndAfterOrderById(user, LocalDateTime.now(), LocalDateTime.now());
-                break;
-            case PAST:
-                bookings = bookingRepository.findAllByBookerAndEndBefore(user, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findAllByBookerAndStartAfterOrderByIdDesc(user, LocalDateTime.now());
-                break;
-            case WAITING:
-                bookings = bookingRepository.findAllByBookerAndStatusOrderByIdDesc(user, BookingStatus.WAITING);
-                break;
-            case REJECTED:
-                bookings = bookingRepository.findAllByBookerAndStatusOrderByIdDesc(user, BookingStatus.REJECTED);
-                break;
-        }
-        return bookings.stream()
-                .map(BookingMapper::toBookingDto)
-                .collect(Collectors.toList());
+    public List<BookingDto> findBookingDto(long userId, BookingState state, int from, int size) {
+        QBooking booking = QBooking.booking;
+        BooleanExpression eq = booking.booker.id.eq(userId);
+        return getBookingDtos(userId, state, from, size, eq);
     }
 
     @Override
-    public List<BookingDto> findBookingDtoForOwner(long userId, BookingState state) {
-        User user = findUserById(userId);
-        List<Booking> bookings;
-        switch (state) {
-            case ALL:
-                bookings = bookingRepository.findAllBookingForOwner(user);
-                break;
-            case CURRENT:
-                bookings = bookingRepository.findCurrentBookingForOwner(user, LocalDateTime.now(), LocalDateTime.now());
-                break;
-            case PAST:
-                bookings = bookingRepository.findPastBookingForOwner(user, LocalDateTime.now());
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findFutureBookingForOwner(user, LocalDateTime.now());
-                break;
-            case WAITING:
-                bookings = bookingRepository.findWaitingBookingForOwner(user);
-                break;
-            case REJECTED:
-                bookings = bookingRepository.findRejectedBookingForOwner(user);
-                break;
-            default:
-                throw new BadRequestException("Unknown state: " + state);
+    public List<BookingDto> findBookingDtoForOwner(long userId, BookingState state, int from, int size) {
+        QBooking booking = QBooking.booking;
+        BooleanExpression eq = booking.item.owner.id.eq(userId);
+        return getBookingDtos(userId, state, from, size, eq);
+    }
+
+    private List<BookingDto> getBookingDtos(long userId, BookingState state, int from, int size, BooleanExpression eq) {
+        findUserById(userId);
+        int pageNumber = from / size;
+        List<BooleanExpression> conditions = new ArrayList<>();
+        conditions.add(eq);
+        if (!state.equals(BookingState.ALL)) {
+            conditions.add(makeStateCondition(state));
         }
-        return bookings.stream()
-                .map(BookingMapper::toBookingDto)
-                .collect(Collectors.toList());
+        BooleanExpression finalCondition = conditions.stream()
+                .reduce(BooleanExpression::and)
+                .get();
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        PageRequest pageRequest = PageRequest.of(pageNumber, size, sort);
+        Page<Booking> bookings = bookingRepository.findAll(finalCondition, pageRequest);
+        return BookingMapper.toBookingDto(bookings);
+    }
+
+    private BooleanExpression makeStateCondition(BookingState state) {
+        switch (state) {
+            case CURRENT:
+                return QBooking.booking.start.before(LocalDateTime.now())
+                        .and(QBooking.booking.end.after(LocalDateTime.now()));
+            case PAST:
+                return QBooking.booking.end.before(LocalDateTime.now());
+            case FUTURE:
+                return QBooking.booking.start.after(LocalDateTime.now());
+            case WAITING:
+                return QBooking.booking.status.eq(BookingStatus.WAITING);
+            case REJECTED:
+            default:
+                return QBooking.booking.status.eq(BookingStatus.REJECTED);
+        }
     }
 
     private Item findItemById(long itemId) {
