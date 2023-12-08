@@ -12,7 +12,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
-
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -97,7 +96,7 @@ class UserServiceImplTest {
         userDto1.setId(user1.getId());
         assertThat(userDtoById1, equalTo(userDto1));
 
-        User user3= query.setParameter("email", userDto3.getEmail()).getSingleResult();
+        User user3 = query.setParameter("email", userDto3.getEmail()).getSingleResult();
         UserDto userDtoById3 = service.findUserDtoById(user3.getId());
         userDto3.setId(user3.getId());
         assertThat(userDtoById3, equalTo(userDto3));
