@@ -43,10 +43,9 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
         Item item = ItemMapper.toItem(itemDtoCreateUpdate);
         item.setOwner(user);
-        ItemRequest request;
         Long requestId = itemDtoCreateUpdate.getRequestId();
         if (requestId != null) {
-            request = requestRepository.findById(requestId)
+            ItemRequest request = requestRepository.findById(requestId)
                     .orElseThrow(() -> new NotFoundException("Запрос с id=" + requestId + " не существует."));
             item.setRequest(request);
         }

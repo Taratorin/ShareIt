@@ -83,7 +83,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void findUserDtoById() {
+    void findUserDtoById_whenUserFound_thenReturnedUser() {
         UserDto userDto1 = makeUserDto("some@email.com", "Пётр Иванов");
         UserDto userDto3 = makeUserDto("some@email2.com", "Пётр Петров");
         service.saveUser(userDto1);
@@ -100,6 +100,10 @@ class UserServiceImplTest {
         UserDto userDtoById3 = service.findUserDtoById(user3.getId());
         userDto3.setId(user3.getId());
         assertThat(userDtoById3, equalTo(userDto3));
+    }
+
+    @Test
+    void findUserDtoById_whenUserNotFound_thenNotFoundException() {
 
         Assertions.assertThrows(NotFoundException.class, () -> service.findUserDtoById(-9999));
     }
