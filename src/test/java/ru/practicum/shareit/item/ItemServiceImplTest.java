@@ -145,7 +145,7 @@ class ItemServiceImplTest {
                 .build();
         return Item.builder()
                 .name("Моя новая вещь")
-                .description("Описание мой новой вещи")
+                .description("Описание моей новой вещи")
                 .isAvailable(true)
                 .owner(user)
                 .build();
