@@ -50,6 +50,7 @@ class UserControllerTest {
         assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
         assertTrue(allUsers.isEmpty());
     }
+
     @Test
     void getUser() {
     }
