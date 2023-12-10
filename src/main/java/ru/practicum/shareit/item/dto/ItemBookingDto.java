@@ -20,4 +20,9 @@ public class ItemBookingDto {
         ItemBookingDto that = (ItemBookingDto) o;
         return id == that.id && Objects.equals(name, that.name);
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name);
+    }
 }

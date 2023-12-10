@@ -30,4 +30,9 @@ public class UserDto {
         UserDto userDto = (UserDto) o;
         return id == userDto.id && Objects.equals(name, userDto.name) && Objects.equals(email, userDto.email);
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, email);
+    }
 }
