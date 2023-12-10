@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -101,7 +100,7 @@ public class BookingServiceImpl implements BookingService {
                 .get();
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         PageRequest pageRequest = PageRequest.of(pageNumber, size, sort);
-        Page<Booking> bookings = bookingRepository.findAll(finalCondition, pageRequest);
+        Iterable<Booking> bookings = bookingRepository.findAll(finalCondition, pageRequest);
         return BookingMapper.toBookingDto(bookings);
     }
 
@@ -141,5 +140,4 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = findBookingById(bookingId);
         return (booking.getBooker().getId() == userId || booking.getItem().getOwner().getId() == userId);
     }
-
 }

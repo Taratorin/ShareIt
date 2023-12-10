@@ -1,10 +1,14 @@
 package ru.practicum.shareit.booking;
 
+import com.querydsl.core.types.Predicate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoCreate;
 import ru.practicum.shareit.exception.BadRequestException;
@@ -136,19 +140,88 @@ class BookingServiceImplTest {
         assertThat(bookingDto, equalTo(getBookingDto()));
     }
 
-//    @Test
-//    void findBookingDto_whenStateAll() {
-//        User user = getUsers().get(1);
-//        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
-//        Page<Booking> bookings = mock(Page.class);
-//        when(bookingRepository.findAll((Predicate) any(), (Pageable) any())).thenReturn(bookings);
-//
-//        List<BookingDto> bookingDto = service.findBookingDto(1, BookingState.ALL, 1, 10);
-//        assertThat(bookingDto, equalTo(getBookingDto()));
-//    }
+    @Test
+    void findBookingDto_whenStateAll() {
+        User user = getUsers().get(1);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        List<Booking> bookingsList = new ArrayList<>(List.of(getBooking()));
+        PageImpl<Booking> bookings = new PageImpl<>(bookingsList);
+        when(bookingRepository.findAll((Predicate) any(), (Pageable) any())).thenReturn(bookings);
+
+        List<BookingDto> bookingDto = service.findBookingDto(1, BookingState.ALL, 1, 10);
+        assertThat(bookingDto, equalTo(List.of(getBookingDto())));
+    }
+
+    @Test
+    void findBookingDto_whenStateCurrent() {
+        User user = getUsers().get(1);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        List<Booking> bookingsList = new ArrayList<>(List.of(getBooking()));
+        PageImpl<Booking> bookings = new PageImpl<>(bookingsList);
+        when(bookingRepository.findAll((Predicate) any(), (Pageable) any())).thenReturn(bookings);
+
+        List<BookingDto> bookingDto = service.findBookingDto(1, BookingState.CURRENT, 1, 10);
+        assertThat(bookingDto, equalTo(List.of(getBookingDto())));
+    }
+
+    @Test
+    void findBookingDto_whenStatePast() {
+        User user = getUsers().get(1);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        List<Booking> bookingsList = new ArrayList<>(List.of(getBooking()));
+        PageImpl<Booking> bookings = new PageImpl<>(bookingsList);
+        when(bookingRepository.findAll((Predicate) any(), (Pageable) any())).thenReturn(bookings);
+
+        List<BookingDto> bookingDto = service.findBookingDto(1, BookingState.PAST, 1, 10);
+        assertThat(bookingDto, equalTo(List.of(getBookingDto())));
+    }
+
+    @Test
+    void findBookingDto_whenStateFuture() {
+        User user = getUsers().get(1);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        List<Booking> bookingsList = new ArrayList<>(List.of(getBooking()));
+        PageImpl<Booking> bookings = new PageImpl<>(bookingsList);
+        when(bookingRepository.findAll((Predicate) any(), (Pageable) any())).thenReturn(bookings);
+
+        List<BookingDto> bookingDto = service.findBookingDto(1, BookingState.FUTURE, 1, 10);
+        assertThat(bookingDto, equalTo(List.of(getBookingDto())));
+    }
+
+    @Test
+    void findBookingDto_whenStateWaiting() {
+        User user = getUsers().get(1);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        List<Booking> bookingsList = new ArrayList<>(List.of(getBooking()));
+        PageImpl<Booking> bookings = new PageImpl<>(bookingsList);
+        when(bookingRepository.findAll((Predicate) any(), (Pageable) any())).thenReturn(bookings);
+
+        List<BookingDto> bookingDto = service.findBookingDto(1, BookingState.WAITING, 1, 10);
+        assertThat(bookingDto, equalTo(List.of(getBookingDto())));
+    }
+
+    @Test
+    void findBookingDto_whenStateRejected() {
+        User user = getUsers().get(1);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        List<Booking> bookingsList = new ArrayList<>(List.of(getBooking()));
+        PageImpl<Booking> bookings = new PageImpl<>(bookingsList);
+        when(bookingRepository.findAll((Predicate) any(), (Pageable) any())).thenReturn(bookings);
+
+        List<BookingDto> bookingDto = service.findBookingDto(1, BookingState.REJECTED, 1, 10);
+        assertThat(bookingDto, equalTo(List.of(getBookingDto())));
+    }
 
     @Test
     void findBookingDtoForOwner() {
+        User user = getUsers().get(1);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        List<Booking> bookingsList = new ArrayList<>(List.of(getBooking()));
+        PageImpl<Booking> bookings = new PageImpl<>(bookingsList);
+        when(bookingRepository.findAll((Predicate) any(), (Pageable) any())).thenReturn(bookings);
+
+        List<BookingDto> bookingDto = service.findBookingDtoForOwner(1, BookingState.ALL, 1, 10);
+        assertThat(bookingDto, equalTo(List.of(getBookingDto())));
     }
 
     private List<User> getUsers() {
@@ -191,6 +264,15 @@ class BookingServiceImplTest {
         booking.setBooker(getUsers().get(1));
         booking.setStatus(BookingStatus.APPROVED);
         return booking;
+    }
+
+    private Page<Booking> getBookingPage() {
+        Booking booking = BookingMapper.toBooking(getBookingDtoCreate());
+        booking.setId(1);
+        booking.setItem(getItem());
+        booking.setBooker(getUsers().get(1));
+        booking.setStatus(BookingStatus.APPROVED);
+        return (Page<Booking>) booking;
     }
 
     private BookingDto getBookingDto() {
