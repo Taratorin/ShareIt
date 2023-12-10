@@ -66,20 +66,12 @@ class UserServiceImplTest {
         UserDto userDto1 = makeUserDto("some@email.com", "Пётр Иванов");
         UserDto userDto2 = makeUserDto("some", "Пётр");
         UserDto userDto3 = makeUserDto("some@email2.com", "Пётр Петров");
-        service.saveUser(userDto1);
-        service.saveUser(userDto2);
-        service.saveUser(userDto3);
+        userDto1 = service.saveUser(userDto1);
+        userDto2 = service.saveUser(userDto2);
+        userDto3 = service.saveUser(userDto3);
 
-        TypedQuery<User> query = em.createQuery("Select u from User u where u.email = :email", User.class);
-        User user1 = query.setParameter("email", userDto1.getEmail()).getSingleResult();
-
-        assertThat(user1.getId(), notNullValue());
-        assertThat(user1.getName(), equalTo(userDto1.getName()));
-        assertThat(user1.getEmail(), equalTo(userDto1.getEmail()));
-
-        User user3 = query.setParameter("email", userDto3.getEmail()).getSingleResult();
-        assertThat(user3.getId(), notNullValue());
-        assertThat(user3.getName(), equalTo(userDto3.getName()));
+        List<UserDto> users = service.findAllUsers();
+        assertThat(users, equalTo(List.of(userDto1, userDto2, userDto3)));
     }
 
     @Test

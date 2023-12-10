@@ -66,15 +66,6 @@ public class ItemMapper {
                 .build();
     }
 
-    public Item toItem(ItemDto itemDto) {
-        return Item.builder()
-                .id(itemDto.getId())
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .isAvailable(itemDto.getAvailable())
-                .build();
-    }
-
     public Item toItem(ItemDtoCreateUpdate itemDtoCreateUpdate) {
         return Item.builder()
                 .name(itemDtoCreateUpdate.getName())

@@ -31,7 +31,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto saveBooking(BookingDtoCreate bookingDtoCreate, long bookerId) {
         User booker = findUserById(bookerId);
         Item item = findItemById(bookingDtoCreate.getItemId());
-        if (booker == item.getOwner()) {
+        if (booker.getId() == item.getOwner().getId()) {
             throw new NotFoundException("Запрещено бронировать свои вещи.");
         }
         if (item.getIsAvailable()) {

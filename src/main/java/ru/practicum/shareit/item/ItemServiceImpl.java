@@ -92,8 +92,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> findItemsByUserId(long userId, int from, int size) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
+        findUserById(userId);
         int pageNumber = from / size;
         Pageable pageable = PageRequest.of(pageNumber, size);
         List<Item> items = itemRepository.findAllByOwnerIdOrderById(userId, pageable);
