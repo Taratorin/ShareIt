@@ -13,11 +13,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
-class UserRepositoryIT {
+class UserRepositoryIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
-    public UserRepositoryIT(UserRepository userRepository) {
+    public UserRepositoryIntegrationTest(UserRepository userRepository) {
         this.userRepository = userRepository;
         userRepository.save(getUsersList().get(0));
         userRepository.save(getUsersList().get(1));

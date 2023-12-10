@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @WebMvcTest
-class UserControllerIT {
+class UserControllerIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;

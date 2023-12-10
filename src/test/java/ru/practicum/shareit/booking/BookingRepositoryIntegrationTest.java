@@ -16,12 +16,12 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @DataJpaTest
-class BookingRepositoryIT {
+class BookingRepositoryIntegrationTest {
 
     private final BookingRepository bookingRepository;
 
     @Autowired
-    public BookingRepositoryIT(BookingRepository bookingRepository, UserRepository userRepository, ItemRepository itemRepository) {
+    public BookingRepositoryIntegrationTest(BookingRepository bookingRepository, UserRepository userRepository, ItemRepository itemRepository) {
         this.bookingRepository = bookingRepository;
         userRepository.save(getUsers().get(0));
         userRepository.save(getUsers().get(1));

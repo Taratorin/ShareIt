@@ -3,56 +3,48 @@ package ru.practicum.shareit.item;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 
 @DataJpaTest
-class ItemRepositoryIT {
-    private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
+class CommentRepositoryIntegrationTest {
+
+    private final CommentRepository commentRepository;
+
 
     @Autowired
-    public ItemRepositoryIT(ItemRepository itemRepository, UserRepository userRepository) {
-        this.itemRepository = itemRepository;
-        this.userRepository = userRepository;
+    public CommentRepositoryIntegrationTest(CommentRepository commentRepository, UserRepository userRepository, ItemRepository itemRepository) {
+        this.commentRepository = commentRepository;
         userRepository.save(getUsers().get(0));
         userRepository.save(getUsers().get(1));
         itemRepository.save(getItems().get(0));
         itemRepository.save(getItems().get(1));
+        commentRepository.save(getComments().get(0));
+        commentRepository.save(getComments().get(1));
     }
 
     @Test
-    void findAllByOwnerIdOrderById_whenOwnerIdCorrect_thenReturnItem() {
-        List<Item> items = itemRepository.findAllByOwnerIdOrderById(1L, Pageable.ofSize(1));
-        assertThat(items, equalTo(List.of(getItems().get(0))));
+    void findAllByItem_whenFound() {
+        List<Comment> comments = commentRepository.findAllByItem(getItems().get(0));
+        assertThat(comments, equalTo(getComments()));
     }
 
     @Test
-    void findAllByOwnerIdOrderById_whenOwnerIdNotCorrect_thenEmptyList() {
-        List<Item> items = itemRepository.findAllByOwnerIdOrderById(-100L, Pageable.ofSize(1));
-        assertThat(items, equalTo(List.of()));
+    void findAllByItem_whenNotFound() {
+        List<Comment> comments = commentRepository.findAllByItem(getItems().get(1));
+        assertThat(comments, equalTo(List.of()));
     }
 
     @Test
-    void findAllByIsAvailableIsTrueAndDescriptionContainingIgnoreCaseOrNameContainingIgnoreCase_find2Items() {
-        List<Item> items = itemRepository
-                .findAllByIsAvailableIsTrueAndDescriptionContainingIgnoreCaseOrNameContainingIgnoreCase("Описание вЕщи №2", "ВещЬ №1", Pageable.ofSize(10));
-        assertThat(items.size(), equalTo(2));
-        assertThat(items, equalTo(getItems()));
-    }
-
-    @Test
-    void findAllByIsAvailableIsTrueAndDescriptionContainingIgnoreCaseOrNameContainingIgnoreCase_findItems() {
-        List<Item> items = itemRepository
-                .findAllByIsAvailableIsTrueAndDescriptionContainingIgnoreCaseOrNameContainingIgnoreCase("Описание вещи №20", "Вещь №10", Pageable.ofSize(10));
-        assertThat(items, equalTo(List.of()));
+    void findAllByItemIn() {
+        List<Comment> comments = commentRepository.findAllByItemIn(getItems());
+        assertThat(comments, equalTo(getComments()));
     }
 
     private List<Item> getItems() {
@@ -93,4 +85,24 @@ class ItemRepositoryIT {
         return users;
     }
 
+    private List<Comment> getComments() {
+        List<Comment> comments = new ArrayList<>();
+        comments.add(
+                Comment.builder()
+                        .id(1)
+                        .text("Хорошая вещь")
+                        .item(getItems().get(0))
+                        .author(getUsers().get(0))
+                        .build()
+        );
+        comments.add(
+                Comment.builder()
+                        .id(2)
+                        .text("Всем рекомендую")
+                        .item(getItems().get(0))
+                        .author(getUsers().get(1))
+                        .build()
+        );
+        return comments;
+    }
 }
