@@ -59,7 +59,7 @@ class BookingServiceImplTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
         Item item = getItem();
         item.setIsAvailable(false);
-        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
 
         assertThrows(BadRequestException.class,
                 () -> service.saveBooking(getBookingDtoCreate(), 1));

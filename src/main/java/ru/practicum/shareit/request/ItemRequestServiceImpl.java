@@ -24,20 +24,20 @@ import java.util.stream.Collectors;
 public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final UserRepository userRepository;
-    private final ItemRequestRepository requestRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final ItemRepository itemRepository;
 
     @Override
     public ItemRequestDto saveRequest(ItemRequestDtoCreate itemRequestDtoCreate, long requestorId) {
         User requestor = findUserById(requestorId);
         ItemRequest request = ItemRequestMapper.toItemRequest(itemRequestDtoCreate, requestor);
-        return ItemRequestMapper.toItemRequestDto(requestRepository.save(request));
+        return ItemRequestMapper.toItemRequestDto(itemRequestRepository.save(request));
     }
 
     @Override
     public List<ItemRequestDto> findItemRequests(long userId) {
         User user = findUserById(userId);
-        List<ItemRequest> itemRequests = requestRepository.findAllByRequestorOrderByCreatedDesc(user);
+        List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequestorOrderByCreatedDesc(user);
         Map<ItemRequest, List<Item>> items = itemRepository.findAllByRequestInOrderById(itemRequests).stream()
                 .collect(Collectors.groupingBy(Item::getRequest));
         return itemRequests.stream().map(x -> {
@@ -56,7 +56,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = findUserById(userId);
         int pageNumber = from / size;
         Pageable pageable = PageRequest.of(pageNumber, size);
-        List<ItemRequest> itemRequests = new ArrayList<>(requestRepository.findAllByRequestorNotOrderByCreatedDesc(user, pageable));
+        List<ItemRequest> itemRequests = new ArrayList<>(itemRequestRepository.findAllByRequestorNotOrderByCreatedDesc(user, pageable));
         Map<ItemRequest, List<Item>> items = itemRepository.findAllByRequestInOrderById(itemRequests).stream()
                 .collect(Collectors.groupingBy(Item::getRequest));
         return itemRequests.stream().map(x -> {
@@ -73,7 +73,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestDto findItemRequestById(long userId, long requestId) {
         findUserById(userId);
-        ItemRequest itemRequest = requestRepository.findById(requestId)
+        ItemRequest itemRequest = itemRequestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Запрос с id=" + requestId + " не существует."));
         List<ItemDtoCreateUpdate> itemDtoCreateUpdates = itemRepository.findAllByRequestInOrderById(List.of(itemRequest)).stream()
                 .map(ItemMapper::toItemDtoCreateUpdate)
