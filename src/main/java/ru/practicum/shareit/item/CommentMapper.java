@@ -23,12 +23,6 @@ public class CommentMapper {
                 .build();
     }
 
-    public Comment toComment(CommentDto commentDto) {
-        return Comment.builder()
-                .text(commentDto.getText())
-                .build();
-    }
-
     public Comment toComment(CommentDtoCreate commentDtoCreate) {
         return Comment.builder()
                 .text(commentDtoCreate.getText())

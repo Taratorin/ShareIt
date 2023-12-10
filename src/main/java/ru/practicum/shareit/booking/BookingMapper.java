@@ -31,18 +31,10 @@ public class BookingMapper {
         return dtos;
     }
 
-    public Booking toBooking(BookingDto bookingDto) {
-        return Booking.builder()
-                .start(bookingDto.getStart())
-                .end(bookingDto.getEnd())
-                .build();
-    }
-
     public Booking toBooking(BookingDtoCreate bookingDtoCreate) {
         return Booking.builder()
                 .start(bookingDtoCreate.getStart())
                 .end(bookingDtoCreate.getEnd())
                 .build();
     }
-
 }

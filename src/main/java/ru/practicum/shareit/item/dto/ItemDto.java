@@ -26,9 +26,4 @@ public class ItemDto {
         ItemDto itemDto = (ItemDto) o;
         return id == itemDto.id && Objects.equals(name, itemDto.name) && Objects.equals(description, itemDto.description) && Objects.equals(available, itemDto.available) && Objects.equals(lastBooking, itemDto.lastBooking) && Objects.equals(nextBooking, itemDto.nextBooking) && Objects.equals(comments, itemDto.comments);
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, available, lastBooking, nextBooking, comments);
-    }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.ItemRequestRepository;
@@ -63,10 +64,24 @@ class ItemServiceImplIntegrationTest {
         item3.setOwner(user2);
         item3.setRequest(itemRequest2);
         item3 = itemRepository.save(item3);
+
+        Comment comment1 = easyRandom.nextObject(Comment.class);
+        Comment comment2 = easyRandom.nextObject(Comment.class);
+        comment1.setItem(item1);
+        comment2.setItem(item2);
+        comment1.setAuthor(user1);
+        comment2.setAuthor(user2);
+        comment1.setCreated(null);
+        comment2.setCreated(null);
+        comment1 = commentRepository.save(comment1);
+        comment2 = commentRepository.save(comment2);
+        CommentDto commentDto1 = CommentMapper.toCommentDto(comment1);
+        CommentDto commentDto2 = CommentMapper.toCommentDto(comment2);
+
         long user1Id = user1.getId();
         long user2Id = user2.getId();
 
-        List<ItemDto> itemDtoExpectedForUser1 = List.of(ItemMapper.toItemDto(item1, List.of()), ItemMapper.toItemDto(item2, List.of()));
+        List<ItemDto> itemDtoExpectedForUser1 = List.of(ItemMapper.toItemDto(item1, List.of(commentDto1)), ItemMapper.toItemDto(item2, List.of(commentDto2)));
         List<ItemDto> itemDtoExpectedForUser2 = List.of(ItemMapper.toItemDto(item3, List.of()));
 
         List<ItemDto> itemDtosForUser1 = service.findItemsByUserId(user1Id, 1, 10);
