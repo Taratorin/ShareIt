@@ -4,14 +4,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.dto.BookingDtoCreate;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentDtoCreate;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoCreateUpdate;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
@@ -92,13 +93,29 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void findItemDtoById_whenItemFound_thenReturnItemDto() {
+    void findItemDtoById_whenItemFoundWithLastBooking_thenReturnItemDto() {
         ItemDto itemDto = getItemDto();
+        itemDto.setLastBooking(getBookingForDto().get(0));
         when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(getItem()));
         when(commentRepository.findAllByItem(any())).thenReturn(List.of());
+        when(bookingRepository.findAllByItemAndStatusOrderByStartDesc(any(Item.class), any(BookingStatus.class)))
+                .thenReturn(List.of(getBooking().get(0)));
         ItemDto itemDtoById = service.findItemDtoById(1, 1);
         assertThat(itemDtoById, equalTo(itemDto));
     }
+
+    @Test
+    void findItemDtoById_whenItemFoundWithNextBooking_thenReturnItemDto() {
+        ItemDto itemDto = getItemDto();
+        itemDto.setNextBooking(getBookingForDto().get(1));
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(getItem()));
+        when(commentRepository.findAllByItem(any())).thenReturn(List.of());
+        when(bookingRepository.findAllByItemAndStatusOrderByStartDesc(any(Item.class), any(BookingStatus.class)))
+                .thenReturn(List.of(getBooking().get(1)));
+        ItemDto itemDtoById = service.findItemDtoById(1, 1);
+        assertThat(itemDtoById, equalTo(itemDto));
+    }
+
 
     @Test
     void findItemDtoById_whenItemFoundAndOwnerNotUser_thenReturnItemDto() {
@@ -219,16 +236,11 @@ class ItemServiceImplTest {
     }
 
     private Item getItem() {
-        User user = User.builder()
-                .id(1)
-                .name("Пользователь 1")
-                .email("email1@email.com")
-                .build();
         return Item.builder()
                 .name("Моя новая вещь")
                 .description("Описание моей новой вещи")
                 .isAvailable(true)
-                .owner(user)
+                .owner(getUsers().get(0))
                 .build();
     }
 
@@ -280,7 +292,55 @@ class ItemServiceImplTest {
                 .text("Some comment")
                 .item(getItem())
                 .author(getUsers().get(0))
-                .created(LocalDateTime.of(2023,10,10,12,0))
+                .created(LocalDateTime.of(2023, 10, 10, 12, 0))
                 .build();
+    }
+
+    private List<BookingDtoCreate> getBookingDtoCreate() {
+        return List.of(
+                BookingDtoCreate.builder()
+                        .start(LocalDateTime.of(2023, 12, 1, 12, 0))
+                        .end(LocalDateTime.of(2023, 12, 2, 12, 0))
+                        .build(),
+                BookingDtoCreate.builder()
+                        .start(LocalDateTime.of(2024, 12, 1, 12, 0))
+                        .end(LocalDateTime.of(2024, 12, 2, 12, 0))
+                        .build());
+    }
+
+    private List<Booking> getBooking() {
+        Booking booking1 = BookingMapper.toBooking(getBookingDtoCreate().get(0));
+        booking1.setId(1);
+        booking1.setItem(getItem());
+        booking1.setBooker(getUsers().get(1));
+        booking1.setStatus(BookingStatus.APPROVED);
+        Booking booking2 = BookingMapper.toBooking(getBookingDtoCreate().get(1));
+        booking2.setId(2);
+        booking2.setItem(getItem());
+        booking2.setBooker(getUsers().get(1));
+        booking2.setStatus(BookingStatus.APPROVED);
+        return List.of(booking1, booking2);
+    }
+
+    private List<BookingForDto> getBookingForDto() {
+        Booking booking1 = getBooking().get(0);
+        BookingForDto bookingForDto1 = BookingForDto.builder()
+                .id(booking1.getId())
+                .start(booking1.getStart())
+                .end(booking1.getEnd())
+                .item(ItemMapper.toItemBookingDto(booking1.getItem()))
+                .bookerId(booking1.getBooker().getId())
+                .status(booking1.getStatus())
+                .build();
+        Booking booking2 = getBooking().get(1);
+        BookingForDto bookingForDto2 = BookingForDto.builder()
+                .id(booking2.getId())
+                .start(booking2.getStart())
+                .end(booking2.getEnd())
+                .item(ItemMapper.toItemBookingDto(booking2.getItem()))
+                .bookerId(booking2.getBooker().getId())
+                .status(booking2.getStatus())
+                .build();
+        return List.of(bookingForDto1, bookingForDto2);
     }
 }
