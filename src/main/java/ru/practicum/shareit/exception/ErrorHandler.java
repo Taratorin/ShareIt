@@ -19,13 +19,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler()
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConflictException(final ConflictException e) {
-        log.trace("Получен статус 409 Conflict {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler()
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
         log.trace("Получен статус 404 Not Found {}", e.getMessage(), e);
@@ -45,5 +38,4 @@ public class ErrorHandler {
         log.trace("Получен статус 500 Internal Server Error {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
-
 }

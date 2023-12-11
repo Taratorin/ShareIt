@@ -36,7 +36,6 @@ class ItemControllerIntegrationTest {
     @MockBean
     private ItemService itemService;
 
-
     @SneakyThrows
     @Test
     void saveItem_whenItemNameNotValid_thenBadRequest() {
