@@ -23,7 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -146,23 +146,176 @@ class BookingControllerIntegrationTest {
 
     @SneakyThrows
     @Test
-    void bookingApprove() {
-
+    void bookingApprove_whenBookingIdNotValid() {
+        long bookingId = -1L;
+        long userId = 1L;
+        String approved = "true";
+        mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
+                        .header("X-Sharer-User-Id", userId)
+                        .param("approved", approved)
+                        .contentType("application/json"))
+                .andExpect(status().isInternalServerError());
+        verify(bookingService, never()).bookingApprove(bookingId, userId, approved);
     }
 
     @SneakyThrows
     @Test
-    void findBookingDto() {
+    void bookingApprove_whenUserIdNotValid() {
+        long bookingId = 1L;
+        long userId = -1L;
+        String approved = "true";
+        mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
+                        .header("X-Sharer-User-Id", userId)
+                        .param("approved", approved)
+                        .contentType("application/json"))
+                .andExpect(status().isInternalServerError());
+        verify(bookingService, never()).bookingApprove(bookingId, userId, approved);
     }
 
     @SneakyThrows
     @Test
-    void testFindBookingDto() {
+    void bookingApprove_whenApprovedNotValid() {
+        long bookingId = 1L;
+        long userId = 1L;
+        String approved = " ";
+        mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
+                        .header("X-Sharer-User-Id", userId)
+                        .param("approved", approved)
+                        .contentType("application/json"))
+                .andExpect(status().isInternalServerError());
+        verify(bookingService, never()).bookingApprove(bookingId, userId, approved);
     }
 
     @SneakyThrows
     @Test
-    void findBookingDtoForOwner() {
+    void bookingApprove_whenAllIsValid() {
+        long bookingId = 1L;
+        long userId = 1L;
+        String approved = "true";
+        when(bookingService.bookingApprove(bookingId, userId, approved)).thenReturn(getBookingDto());
+        String result = mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
+                        .header("X-Sharer-User-Id", userId)
+                        .param("approved", approved)
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        verify(bookingService, times(1)).bookingApprove(bookingId, userId, approved);
+        assertThat(result, equalTo(objectMapper.writeValueAsString(getBookingDto())));
+    }
+
+    @SneakyThrows
+    @Test
+    void findBookingDto_whenExceptionThrown() {
+        long bookingId = 1L;
+        long userId = 1L;
+        when(bookingService.findBookingDtoById(bookingId, userId)).thenThrow(new NotFoundException(""));
+        mockMvc.perform(get("/bookings/{bookingId}", bookingId)
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType("application/json"))
+                .andExpect(status().isNotFound());
+        verify(bookingService, times(1)).findBookingDtoById(bookingId, userId);
+    }
+
+    @SneakyThrows
+    @Test
+    void findBookingDto_whenAllIsValid() {
+        BookingDto bookingDto = getBookingDto();
+        long bookingId = 1L;
+        long userId = 1L;
+        when(bookingService.findBookingDtoById(bookingId, userId)).thenReturn(bookingDto);
+        String result = mockMvc.perform(get("/bookings/{bookingId}", bookingId)
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        verify(bookingService, times(1)).findBookingDtoById(bookingId, userId);
+        assertThat(result, equalTo(objectMapper.writeValueAsString(bookingDto)));
+    }
+
+    @SneakyThrows
+    @Test
+    void testFindBookingDto_whenAllIsValid() {
+        List<BookingDto> bookingDtos = List.of(getBookingDto());
+        long userId = 1L;
+        int from = 0;
+        int size = 10;
+        BookingState bookingState = BookingState.ALL;
+        when(bookingService.findBookingDto(userId, bookingState, from, size)).thenReturn(bookingDtos);
+        String result = mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
+                        .param("state", "ALL")
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        verify(bookingService, times(1)).findBookingDto(userId, bookingState, from, size);
+        assertThat(result, equalTo(objectMapper.writeValueAsString(bookingDtos)));
+    }
+
+    @SneakyThrows
+    @Test
+    void testFindBookingDto_whenUnknownState() {
+        List<BookingDto> bookingDtos = List.of(getBookingDto());
+        long userId = 1L;
+        int from = 0;
+        int size = 10;
+        BookingState bookingState = BookingState.ALL;
+        when(bookingService.findBookingDto(userId, bookingState, from, size)).thenReturn(bookingDtos);
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
+                        .param("state", "AALL")
+                        .contentType("application/json"))
+                .andExpect(status().isBadRequest());
+        verify(bookingService, never()).findBookingDto(userId, bookingState, from, size);
+    }
+
+
+    @SneakyThrows
+    @Test
+    void findBookingDtoForOwner_whenAllIsValid() {
+        List<BookingDto> bookingDtos = List.of(getBookingDto());
+        long userId = 1L;
+        int from = 0;
+        int size = 10;
+        BookingState bookingState = BookingState.ALL;
+        when(bookingService.findBookingDtoForOwner(userId, bookingState, from, size)).thenReturn(bookingDtos);
+        String result = mockMvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", userId)
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
+                        .param("state", "ALL")
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        verify(bookingService, times(1)).findBookingDtoForOwner(userId, bookingState, from, size);
+        assertThat(result, equalTo(objectMapper.writeValueAsString(bookingDtos)));
+    }
+
+    @SneakyThrows
+    @Test
+    void findBookingDtoForOwner_whenUnknownState() {
+        long userId = 1L;
+        int from = 0;
+        int size = 10;
+        mockMvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", userId)
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
+                        .param("state", "AALL")
+                        .contentType("application/json"))
+                .andExpect(status().isBadRequest());
+        verify(bookingService, never()).findBookingDtoForOwner(userId, BookingState.ALL, from, size);
     }
 
     private BookingDtoCreate getBookingDtoCreate() {

@@ -10,6 +10,7 @@ import ru.practicum.shareit.exception.BadRequestException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -32,9 +33,9 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDto bookingApprove(@PathVariable long bookingId,
+    public BookingDto bookingApprove(@PathVariable @Min(1) long bookingId,
                                      @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId,
-                                     @RequestParam @NotNull String approved) {
+                                     @RequestParam @NotNull @NotBlank String approved) {
         log.info("Получен запрос PATCH /bookings — подтверждение запроса на бронирование");
         return bookingService.bookingApprove(bookingId, userId, approved);
     }
@@ -73,5 +74,4 @@ public class BookingController {
             throw new BadRequestException("Unknown state: " + state);
         }
     }
-
 }
