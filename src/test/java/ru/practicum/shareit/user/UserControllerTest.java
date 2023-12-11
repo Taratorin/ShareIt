@@ -38,13 +38,13 @@ class UserControllerTest {
     void getAllUsers_whenInvoked_thenResponseStatusOkWithUserCollectionInBody() {
         List<UserDto> expectedUsers = getUserDtoList();
         Mockito.when(userService.findAllUsers()).thenReturn(expectedUsers);
-        List<UserDto> allUsers = userController.getAllUsers();
+        List<UserDto> allUsers = userController.findAllUsers();
         assertThat(allUsers, equalTo(expectedUsers));
     }
 
     @Test
     void getAllUsers_whenInvoked_thenResponseStatusOkWithEmptyUserCollectionInBody() {
-        List<UserDto> allUsers = userController.getAllUsers();
+        List<UserDto> allUsers = userController.findAllUsers();
         ResponseEntity<List<UserDto>> response = ResponseEntity.ok(allUsers);
 
         assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
