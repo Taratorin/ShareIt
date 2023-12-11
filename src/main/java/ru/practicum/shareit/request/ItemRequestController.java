@@ -22,7 +22,7 @@ public class ItemRequestController {
     private final ItemRequestService itemRequestService;
 
     @PostMapping()
-    public ItemRequestDto createBooking(@Valid @RequestBody ItemRequestDtoCreate itemRequestDtoCreate,
+    public ItemRequestDto createItemRequest(@Valid @RequestBody ItemRequestDtoCreate itemRequestDtoCreate,
                                         @RequestHeader(X_SHARER_USER_ID) @Min(1) long requestorId) {
         log.info("Получен запрос POST /requests — добавление запроса на вещь");
         return itemRequestService.saveRequest(itemRequestDtoCreate, requestorId);
@@ -43,7 +43,7 @@ public class ItemRequestController {
     }
 
     @GetMapping("/{requestId}")
-    public ItemRequestDto findItemRequestById(@PathVariable long requestId,
+    public ItemRequestDto findItemRequestById(@PathVariable @Min(1) long requestId,
                                               @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId) {
         log.info("Получен запрос GET /requests/all — получение списка всех запросов вещей");
         return itemRequestService.findItemRequestById(userId, requestId);
