@@ -28,8 +28,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ItemServiceImplTest {
@@ -81,6 +80,30 @@ class ItemServiceImplTest {
 
         assertThat(itemDtoCreateUpdateSaved, equalTo(itemDtoCreateUpdate));
         verify(itemRepository).save(any());
+    }
+
+    @Test
+    void saveItem_whenItemRequestRepositoryReturnEmptyOptional_thenNotFoundException() {
+        ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
+        User user = getUsers().get(0);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(requestRepository.findById(any())).thenReturn(Optional.empty());
+        long userId = 1L;
+
+        assertThrows(NotFoundException.class,
+                () -> service.saveItem(itemDtoCreateUpdate, userId));
+        verify(itemRepository, never()).save(any());
+    }
+
+    @Test
+    void saveItem_whenUserRepositoryReturnEmptyOptional_thenNotFoundException() {
+        ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+        long userId = 1L;
+
+        assertThrows(NotFoundException.class,
+                () -> service.saveItem(itemDtoCreateUpdate, userId));
+        verify(itemRepository, never()).save(any());
     }
 
     @Test
@@ -213,6 +236,13 @@ class ItemServiceImplTest {
         List<ItemDto> itemDtos = service.findItemsByUserId(1, 1, 10);
 
         assertThat(itemDtos, equalTo(List.of(ItemMapper.toItemDto(getItem(), List.of()))));
+    }
+
+    @Test
+    void findItemsByUserId_whenUserRepositoryReturnEmptyOptional_thenBadRequest() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class,
+                () -> service.findItemsByUserId(1, 1, 10));
     }
 
     @Test
