@@ -27,8 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
@@ -50,6 +49,26 @@ class BookingServiceImplTest {
 
         assertThrows(NotFoundException.class,
                 () -> service.saveBooking(getBookingDtoCreate(), 1));
+    }
+
+    @Test
+    void saveBooking_whenUserRepositoryReturnEmptyOptional_returnNotFoundException() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> service.saveBooking(getBookingDtoCreate(), 1));
+        verify(bookingRepository, never()).save(any());
+    }
+
+    @Test
+    void saveBooking_whenItemRepositoryReturnEmptyOptional_returnNotFoundException() {
+        User user = getUsers().get(1);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> service.saveBooking(getBookingDtoCreate(), 1));
+        verify(bookingRepository, never()).save(any());
     }
 
     @Test
@@ -80,6 +99,14 @@ class BookingServiceImplTest {
     @Test
     void bookingApprove_whenOwnerAnotherUser_thenNotFoundException() {
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(getBooking()));
+
+        assertThrows(NotFoundException.class,
+                () -> service.bookingApprove(1L, 10L, "true"));
+    }
+
+    @Test
+    void bookingApprove_whenBookingRepositoryReturnEmptyOptional_thenNotFoundException() {
+        when(bookingRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class,
                 () -> service.bookingApprove(1L, 10L, "true"));
