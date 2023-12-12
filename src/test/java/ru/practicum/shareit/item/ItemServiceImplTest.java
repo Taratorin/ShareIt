@@ -122,7 +122,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void updateItem_whenIdValidAndNameIsBlank_thenItemUpdated() {
+    void updateItem_whenIdValidAndNameIsNull_thenItemUpdated() {
         ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
         itemDtoCreateUpdate.setName(null);
         itemDtoCreateUpdate.setDescription("Описание после обновления");
@@ -139,7 +139,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void updateItem_whenIdValidAndDescriptionIsBlank_thenItemUpdated() {
+    void updateItem_whenIdValidAndDescriptionIsNull_thenItemUpdated() {
         ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
         itemDtoCreateUpdate.setName("Имя после обновления");
         itemDtoCreateUpdate.setDescription(null);
