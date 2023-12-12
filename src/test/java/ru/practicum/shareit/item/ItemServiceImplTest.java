@@ -67,12 +67,81 @@ class ItemServiceImplTest {
     }
 
     @Test
+    void saveItem_whenItemValidAndRequestIdIsNull_thenSavedItem() {
+        ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
+        itemDtoCreateUpdate.setRequestId(null);
+        User user = getUsers().get(0);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        Item itemToSave = ItemMapper.toItem(itemDtoCreateUpdate);
+        itemToSave.setOwner(user);
+        itemToSave.setRequest(null);
+        when(itemRepository.save(any())).thenReturn(itemToSave);
+        long userId = 1L;
+        ItemDtoCreateUpdate itemDtoCreateUpdateSaved = service.saveItem(itemDtoCreateUpdate, userId);
+
+        assertThat(itemDtoCreateUpdateSaved, equalTo(itemDtoCreateUpdate));
+        verify(itemRepository).save(any());
+    }
+
+    @Test
     void updateItem_whenIdValid_thenItemUpdated() {
         ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
         itemDtoCreateUpdate.setName("Имя после обновления");
         itemDtoCreateUpdate.setDescription("Описание после обновления");
         when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(getItem()));
         when(itemRepository.save(any())).thenReturn(getItem());
+        service.updateItem(itemDtoCreateUpdate, 1, 1);
+        verify(itemRepository).save(itemArgumentCaptor.capture());
+        Item itemToSave = itemArgumentCaptor.getValue();
+        assertThat(itemToSave.getName(), equalTo(itemDtoCreateUpdate.getName()));
+        assertThat(itemToSave.getDescription(), equalTo(itemDtoCreateUpdate.getDescription()));
+        assertThat(itemToSave.getIsAvailable(), equalTo(itemDtoCreateUpdate.getAvailable()));
+    }
+
+    @Test
+    void updateItem_whenIdValidAndNameIsBlank_thenItemUpdated() {
+        ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
+        itemDtoCreateUpdate.setName(null);
+        itemDtoCreateUpdate.setDescription("Описание после обновления");
+        Item item = getItem();
+        item.setName(null);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
+        when(itemRepository.save(any())).thenReturn(item);
+        service.updateItem(itemDtoCreateUpdate, 1, 1);
+        verify(itemRepository).save(itemArgumentCaptor.capture());
+        Item itemToSave = itemArgumentCaptor.getValue();
+        assertThat(itemToSave.getName(), equalTo(itemDtoCreateUpdate.getName()));
+        assertThat(itemToSave.getDescription(), equalTo(itemDtoCreateUpdate.getDescription()));
+        assertThat(itemToSave.getIsAvailable(), equalTo(itemDtoCreateUpdate.getAvailable()));
+    }
+
+    @Test
+    void updateItem_whenIdValidAndDescriptionIsBlank_thenItemUpdated() {
+        ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
+        itemDtoCreateUpdate.setName("Имя после обновления");
+        itemDtoCreateUpdate.setDescription(null);
+        Item item = getItem();
+        item.setDescription(null);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
+        when(itemRepository.save(any())).thenReturn(item);
+        service.updateItem(itemDtoCreateUpdate, 1, 1);
+        verify(itemRepository).save(itemArgumentCaptor.capture());
+        Item itemToSave = itemArgumentCaptor.getValue();
+        assertThat(itemToSave.getName(), equalTo(itemDtoCreateUpdate.getName()));
+        assertThat(itemToSave.getDescription(), equalTo(itemDtoCreateUpdate.getDescription()));
+        assertThat(itemToSave.getIsAvailable(), equalTo(itemDtoCreateUpdate.getAvailable()));
+    }
+
+    @Test
+    void updateItem_whenIdValidAndAvailableIsBlank_thenItemUpdated() {
+        ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
+        itemDtoCreateUpdate.setName("Имя после обновления");
+        itemDtoCreateUpdate.setDescription("Описание после обновления");
+        itemDtoCreateUpdate.setAvailable(null);
+        Item item = getItem();
+        item.setIsAvailable(null);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(item));
+        when(itemRepository.save(any())).thenReturn(item);
         service.updateItem(itemDtoCreateUpdate, 1, 1);
         verify(itemRepository).save(itemArgumentCaptor.capture());
         Item itemToSave = itemArgumentCaptor.getValue();
