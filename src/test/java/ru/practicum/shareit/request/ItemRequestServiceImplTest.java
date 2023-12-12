@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoCreate;
@@ -18,10 +19,10 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ItemRequestServiceImplTest {
@@ -37,7 +38,6 @@ class ItemRequestServiceImplTest {
 
 
     @Test
-
     void saveRequest() {
         User user = getUsers().get(0);
         when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
@@ -47,6 +47,16 @@ class ItemRequestServiceImplTest {
 
         assertThat(itemRequestDto, equalTo(getItemRequestDto()));
         verify(itemRequestRepository).save(any());
+    }
+
+    @Test
+    void saveRequest_whenUserRepositoryReturnEmptyOptional_thenNotFoundException() {
+        ItemRequestDtoCreate itemRequestDtoCreate = getItemRequestDtoCreate();
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> service.saveRequest(itemRequestDtoCreate, 1));
+        verify(itemRequestRepository, never()).save(any());
     }
 
     @Test
@@ -80,6 +90,16 @@ class ItemRequestServiceImplTest {
 
         ItemRequestDto itemRequestDto = service.findItemRequestById(1L, 1L);
         assertThat(itemRequestDto, equalTo(getItemRequestDto()));
+    }
+
+    @Test
+    void findItemRequestById_whenItemRequestRepositoryReturnEmptyOptional_thenNotFoundException() {
+        User user = getUsers().get(0);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
+        when(itemRequestRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> service.findItemRequestById(1L, 1L));
     }
 
     private List<User> getUsers() {
