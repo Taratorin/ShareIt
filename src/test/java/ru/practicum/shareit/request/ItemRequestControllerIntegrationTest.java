@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.config.Constants.X_SHARER_USER_ID;
 
 @WebMvcTest(controllers = ItemRequestController.class)
 class ItemRequestControllerIntegrationTest {
@@ -41,7 +42,7 @@ class ItemRequestControllerIntegrationTest {
         when(itemRequestService.saveRequest(itemRequestDtoCreate, requestorId)).thenReturn(itemRequestDto);
         String result = mockMvc.perform(post("/requests")
                         .content(objectMapper.writeValueAsString(itemRequestDtoCreate))
-                        .header("X-Sharer-User-Id", requestorId)
+                        .header(X_SHARER_USER_ID, requestorId)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -59,7 +60,7 @@ class ItemRequestControllerIntegrationTest {
         long requestorId = 1L;
         mockMvc.perform(post("/requests")
                         .content(objectMapper.writeValueAsString(itemRequestDtoCreate))
-                        .header("X-Sharer-User-Id", requestorId)
+                        .header(X_SHARER_USER_ID, requestorId)
                         .contentType("application/json"))
                 .andExpect(status().isBadRequest());
         verify(itemRequestService, never()).saveRequest(itemRequestDtoCreate, requestorId);
@@ -72,7 +73,7 @@ class ItemRequestControllerIntegrationTest {
         long userId = 1L;
         when(itemRequestService.findItemRequests(userId)).thenReturn(itemRequestDtos);
         String result = mockMvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -91,7 +92,7 @@ class ItemRequestControllerIntegrationTest {
         int size = 10;
         when(itemRequestService.findItemRequestsPages(userId, from, size)).thenReturn(itemRequestDtos);
         String result = mockMvc.perform(get("/requests/all")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -109,7 +110,7 @@ class ItemRequestControllerIntegrationTest {
         long requestId = 1L;
         when(itemRequestService.findItemRequestById(userId, requestId)).thenReturn(itemRequestDto);
         String result = mockMvc.perform(get("/requests/{requestId}", requestId)
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn()

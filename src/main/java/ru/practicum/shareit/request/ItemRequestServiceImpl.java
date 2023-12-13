@@ -38,8 +38,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDto> findItemRequests(long userId) {
         User user = findUserById(userId);
         List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequestorOrderByCreatedDesc(user);
-        Map<ItemRequest, List<Item>> items = itemRepository.findAllByRequestInOrderById(itemRequests).stream()
-                .collect(Collectors.groupingBy(Item::getRequest));
+        Map<ItemRequest, List<Item>> items = getItemRequestListMap(itemRequests);
         return itemRequests.stream().map(x -> {
                     List<ItemDtoCreateUpdate> itemDtoCreateUpdates = items.getOrDefault(x, List.of()).stream()
                             .map(ItemMapper::toItemDtoCreateUpdate)
@@ -57,8 +56,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         int pageNumber = from / size;
         Pageable pageable = PageRequest.of(pageNumber, size);
         List<ItemRequest> itemRequests = new ArrayList<>(itemRequestRepository.findAllByRequestorNotOrderByCreatedDesc(user, pageable));
-        Map<ItemRequest, List<Item>> items = itemRepository.findAllByRequestInOrderById(itemRequests).stream()
-                .collect(Collectors.groupingBy(Item::getRequest));
+        Map<ItemRequest, List<Item>> items = getItemRequestListMap(itemRequests);
         return itemRequests.stream().map(x -> {
                     List<ItemDtoCreateUpdate> itemDtoCreateUpdates = items.getOrDefault(x, List.of()).stream()
                             .map(ItemMapper::toItemDtoCreateUpdate)
@@ -81,6 +79,12 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest);
         itemRequestDto.setItems(itemDtoCreateUpdates);
         return itemRequestDto;
+    }
+
+    private Map<ItemRequest, List<Item>> getItemRequestListMap(List<ItemRequest> itemRequests) {
+        Map<ItemRequest, List<Item>> items = itemRepository.findAllByRequestInOrderById(itemRequests).stream()
+                .collect(Collectors.groupingBy(Item::getRequest));
+        return items;
     }
 
     private User findUserById(long userId) {

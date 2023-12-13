@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.config.Constants.X_SHARER_USER_ID;
 
 @WebMvcTest(controllers = ItemController.class)
 class ItemControllerIntegrationTest {
@@ -78,7 +79,7 @@ class ItemControllerIntegrationTest {
         ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
         mockMvc.perform(post("/items")
                         .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-                        .header("X-Sharer-User-Id", -1L)
+                        .header(X_SHARER_USER_ID, -1L)
                         .contentType("application/json"))
                 .andExpect(status().isInternalServerError());
         verify(itemService, never()).saveItem(itemDtoCreateUpdate, eq(anyLong()));
@@ -91,7 +92,7 @@ class ItemControllerIntegrationTest {
         when(itemService.saveItem(itemDtoCreateUpdate, 1L)).thenThrow(new NotFoundException(""));
         mockMvc.perform(post("/items")
                         .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(X_SHARER_USER_ID, 1L)
                         .contentType("application/json"))
                 .andExpect(status().isNotFound());
         verify(itemService, times(1)).saveItem(itemDtoCreateUpdate, 1L);
@@ -104,7 +105,7 @@ class ItemControllerIntegrationTest {
         when(itemService.saveItem(itemDtoCreateUpdate, 1L)).thenReturn(itemDtoCreateUpdate);
         String result = mockMvc.perform(post("/items")
                         .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(X_SHARER_USER_ID, 1L)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -121,7 +122,7 @@ class ItemControllerIntegrationTest {
         long itemId = -1;
         mockMvc.perform(patch("/items/{itemId}", itemId)
                         .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(X_SHARER_USER_ID, 1L)
                         .contentType("application/json"))
                 .andExpect(status().isInternalServerError());
         verify(itemService, never()).updateItem(any(ItemDtoCreateUpdate.class), anyLong(), anyLong());
@@ -134,7 +135,7 @@ class ItemControllerIntegrationTest {
         long itemId = 1;
         mockMvc.perform(patch("/items/{itemId}", itemId)
                         .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-                        .header("X-Sharer-User-Id", -1L)
+                        .header(X_SHARER_USER_ID, -1L)
                         .contentType("application/json"))
                 .andExpect(status().isInternalServerError());
         verify(itemService, never()).updateItem(any(ItemDtoCreateUpdate.class), anyLong(), anyLong());
@@ -149,7 +150,7 @@ class ItemControllerIntegrationTest {
         long itemId = 1;
         mockMvc.perform(patch("/items/{itemId}", itemId)
                         .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(X_SHARER_USER_ID, 1L)
                         .contentType("application/json"))
                 .andExpect(status().isForbidden());
         verify(itemService, times(1)).updateItem(itemDtoCreateUpdate, 1L, 1L);
@@ -164,7 +165,7 @@ class ItemControllerIntegrationTest {
         long itemId = 1;
         String result = mockMvc.perform(patch("/items/{itemId}", itemId)
                         .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-                        .header("X-Sharer-User-Id", 1L)
+                        .header(X_SHARER_USER_ID, 1L)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -184,7 +185,7 @@ class ItemControllerIntegrationTest {
         when(itemService.saveComment(commentDtoCreate, itemId, userId)).thenReturn(getCommentDto());
         mockMvc.perform(post("/items/{itemId}/comment", itemId)
                         .content(objectMapper.writeValueAsString(commentDtoCreate))
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .contentType("application/json"))
                 .andExpect(status().isBadRequest());
         verify(itemService, never()).saveComment(commentDtoCreate, itemId, userId);
@@ -199,7 +200,7 @@ class ItemControllerIntegrationTest {
         when(itemService.saveComment(commentDtoCreate, itemId, userId)).thenReturn(getCommentDto());
         mockMvc.perform(post("/items/{itemId}/comment", itemId)
                         .content(objectMapper.writeValueAsString(commentDtoCreate))
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .contentType("application/json"))
                 .andExpect(status().isInternalServerError());
         verify(itemService, never()).saveComment(commentDtoCreate, itemId, userId);
@@ -214,7 +215,7 @@ class ItemControllerIntegrationTest {
         when(itemService.saveComment(commentDtoCreate, itemId, userId)).thenReturn(getCommentDto());
         mockMvc.perform(post("/items/{itemId}/comment", itemId)
                         .content(objectMapper.writeValueAsString(commentDtoCreate))
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .contentType("application/json"))
                 .andExpect(status().isInternalServerError());
         verify(itemService, never()).saveComment(commentDtoCreate, itemId, userId);
@@ -229,7 +230,7 @@ class ItemControllerIntegrationTest {
         when(itemService.saveComment(commentDtoCreate, itemId, userId)).thenReturn(getCommentDto());
         String result = mockMvc.perform(post("/items/{itemId}/comment", itemId)
                         .content(objectMapper.writeValueAsString(commentDtoCreate))
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -248,7 +249,7 @@ class ItemControllerIntegrationTest {
         when(itemService.findItemDtoById(itemId, userId)).thenReturn(itemDto);
         mockMvc.perform(get("/items/{itemId}", itemId)
                         .contentType("application/json")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .content(objectMapper.writeValueAsString(itemDto)))
                 .andExpect(status().isInternalServerError());
         verify(itemService, never()).findItemDtoById(itemId, userId);
@@ -263,7 +264,7 @@ class ItemControllerIntegrationTest {
         when(itemService.findItemDtoById(itemId, userId)).thenReturn(itemDto);
         mockMvc.perform(get("/items/{itemId}", itemId)
                         .contentType("application/json")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .content(objectMapper.writeValueAsString(itemDto)))
                 .andExpect(status().isInternalServerError());
         verify(itemService, never()).findItemDtoById(itemId, userId);
@@ -278,7 +279,7 @@ class ItemControllerIntegrationTest {
         when(itemService.findItemDtoById(itemId, userId)).thenReturn(itemDto);
         String result = mockMvc.perform(get("/items/{itemId}", itemId)
                         .contentType("application/json")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .content(objectMapper.writeValueAsString(itemDto)))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -297,7 +298,7 @@ class ItemControllerIntegrationTest {
         int size = 10;
         mockMvc.perform(get("/items")
                         .contentType("application/json")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .param("from", String.valueOf(from))
                         .param("size", String.valueOf(size))
                         .content(objectMapper.writeValueAsString(itemDtos)))
@@ -314,7 +315,7 @@ class ItemControllerIntegrationTest {
         int size = -10;
         mockMvc.perform(get("/items")
                         .contentType("application/json")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .param("from", String.valueOf(from))
                         .param("size", String.valueOf(size))
                         .content(objectMapper.writeValueAsString(itemDtos)))
@@ -332,7 +333,7 @@ class ItemControllerIntegrationTest {
         when(itemService.findItemsByUserId(anyLong(), anyInt(), anyInt())).thenReturn(itemDtos);
         String result = mockMvc.perform(get("/items")
                         .contentType("application/json")
-                        .header("X-Sharer-User-Id", userId)
+                        .header(X_SHARER_USER_ID, userId)
                         .param("from", String.valueOf(from))
                         .param("size", String.valueOf(size))
                         .content(objectMapper.writeValueAsString(itemDtos)))
