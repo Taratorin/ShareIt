@@ -39,15 +39,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = findUserById(userId);
         List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequestorOrderByCreatedDesc(user);
         Map<ItemRequest, List<Item>> items = getItemRequestListMap(itemRequests);
-        return itemRequests.stream().map(x -> {
-                    List<ItemDtoCreateUpdate> itemDtoCreateUpdates = items.getOrDefault(x, List.of()).stream()
-                            .map(ItemMapper::toItemDtoCreateUpdate)
-                            .collect(Collectors.toList());
-                    ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(x);
-                    itemRequestDto.setItems(itemDtoCreateUpdates);
-                    return itemRequestDto;
-                })
-                .collect(Collectors.toList());
+        return getItemRequestDtoList(itemRequests, items);
     }
 
     @Override
@@ -57,15 +49,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         Pageable pageable = PageRequest.of(pageNumber, size);
         List<ItemRequest> itemRequests = new ArrayList<>(itemRequestRepository.findAllByRequestorNotOrderByCreatedDesc(user, pageable));
         Map<ItemRequest, List<Item>> items = getItemRequestListMap(itemRequests);
-        return itemRequests.stream().map(x -> {
-                    List<ItemDtoCreateUpdate> itemDtoCreateUpdates = items.getOrDefault(x, List.of()).stream()
-                            .map(ItemMapper::toItemDtoCreateUpdate)
-                            .collect(Collectors.toList());
-                    ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(x);
-                    itemRequestDto.setItems(itemDtoCreateUpdates);
-                    return itemRequestDto;
-                })
-                .collect(Collectors.toList());
+        return getItemRequestDtoList(itemRequests, items);
     }
 
     @Override
@@ -79,6 +63,18 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest);
         itemRequestDto.setItems(itemDtoCreateUpdates);
         return itemRequestDto;
+    }
+
+    private List<ItemRequestDto> getItemRequestDtoList(List<ItemRequest> itemRequests, Map<ItemRequest, List<Item>> items) {
+        return itemRequests.stream().map(x -> {
+                    List<ItemDtoCreateUpdate> itemDtoCreateUpdates = items.getOrDefault(x, List.of()).stream()
+                            .map(ItemMapper::toItemDtoCreateUpdate)
+                            .collect(Collectors.toList());
+                    ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(x);
+                    itemRequestDto.setItems(itemDtoCreateUpdates);
+                    return itemRequestDto;
+                })
+                .collect(Collectors.toList());
     }
 
     private Map<ItemRequest, List<Item>> getItemRequestListMap(List<ItemRequest> itemRequests) {

@@ -11,15 +11,11 @@ public enum BookingState {
     REJECTED;
 
     public static BookingState valueOfState(String stateString) {
-        BookingState stateFound = null;
         for (BookingState state : BookingState.values()) {
-            if (state.toString().equals(stateString.toUpperCase())) {
-                stateFound = state;
+            if (state.toString().equalsIgnoreCase(stateString)) {
+                return state;
             }
         }
-        if (stateFound == null) {
-            throw new BadRequestException("Unknown state: " + stateString);
-        }
-        return stateFound;
+        throw new BadRequestException("Unknown state: " + stateString);
     }
 }
