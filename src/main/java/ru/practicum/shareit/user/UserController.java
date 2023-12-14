@@ -31,13 +31,13 @@ public class UserController {
     }
 
     @GetMapping()
-    public List<UserDto> getAllUsers() {
+    public List<UserDto> findAllUsers() {
         log.info("Получен запрос GET /users — получение пользователей");
         return userService.findAllUsers();
     }
 
     @GetMapping("/{id}")
-    public UserDto getUser(@PathVariable int id) {
+    public UserDto findUser(@PathVariable int id) {
         log.info("Получен запрос GET /users/{Id} — получение пользователя по id");
         return userService.findUserDtoById(id);
     }

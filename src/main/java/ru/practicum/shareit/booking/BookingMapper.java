@@ -6,6 +6,9 @@ import ru.practicum.shareit.booking.dto.BookingDtoCreate;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.user.UserMapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @UtilityClass
 public class BookingMapper {
 
@@ -20,11 +23,12 @@ public class BookingMapper {
                 .build();
     }
 
-    public Booking toBooking(BookingDto bookingDto) {
-        return Booking.builder()
-                .start(bookingDto.getStart())
-                .end(bookingDto.getEnd())
-                .build();
+    public List<BookingDto> toBookingDto(Iterable<Booking> bookings) {
+        List<BookingDto> dtos = new ArrayList<>();
+        for (Booking booking : bookings) {
+            dtos.add(toBookingDto(booking));
+        }
+        return dtos;
     }
 
     public Booking toBooking(BookingDtoCreate bookingDtoCreate) {
@@ -33,5 +37,4 @@ public class BookingMapper {
                 .end(bookingDtoCreate.getEnd())
                 .build();
     }
-
 }

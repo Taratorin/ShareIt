@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -12,6 +14,8 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentDtoCreate;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoCreateUpdate;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -30,14 +34,23 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository requestRepository;
+
 
     @Override
     public ItemDtoCreateUpdate saveItem(ItemDtoCreateUpdate itemDtoCreateUpdate, long userId) {
-        Item item = ItemMapper.toItem(itemDtoCreateUpdate);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
+        Item item = ItemMapper.toItem(itemDtoCreateUpdate);
         item.setOwner(user);
-        return ItemMapper.toItemDtoCreateUpdate(itemRepository.save(item));
+        Long requestId = itemDtoCreateUpdate.getRequestId();
+        if (requestId != null) {
+            ItemRequest request = requestRepository.findById(requestId)
+                    .orElseThrow(() -> new NotFoundException("Запрос с id=" + requestId + " не существует."));
+            item.setRequest(request);
+        }
+        Item savedItem = itemRepository.save(item);
+        return ItemMapper.toItemDtoCreateUpdate(savedItem);
     }
 
     @Override
@@ -78,10 +91,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findItemsByUserId(long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не существует."));
-        List<Item> items = itemRepository.findAllByOwnerIdOrderById(userId);
+    public List<ItemDto> findItemsByUserId(long userId, int from, int size) {
+        findUserById(userId);
+        int pageNumber = from / size;
+        Pageable pageable = PageRequest.of(pageNumber, size);
+        List<Item> items = itemRepository.findAllByOwnerIdOrderById(userId, pageable);
         Map<Item, List<Booking>> bookingMap = bookingRepository.findAllByItemInAndStatusOrderByStartDesc(items, BookingStatus.APPROVED)
                 .stream()
                 .collect(Collectors.groupingBy(Booking::getItem));
@@ -103,10 +117,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItem(String text) {
+    public List<ItemDto> searchItem(String text, int from, int size) {
         if (!text.isBlank()) {
+            int pageNumber = from / size;
+            Pageable pageable = PageRequest.of(pageNumber, size);
             List<Item> items = itemRepository
-                    .findAllByIsAvailableIsTrueAndDescriptionContainingIgnoreCaseOrNameContainingIgnoreCase(text, text);
+                    .findAllByIsAvailableIsTrueAndDescriptionContainingIgnoreCaseOrNameContainingIgnoreCase(text, text, pageable);
             Map<Item, List<Comment>> commentMap = commentRepository.findAllByItemIn(items).stream()
                     .collect(Collectors.groupingBy(Comment::getItem));
             return items.stream().map(item -> {

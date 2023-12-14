@@ -6,11 +6,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoCreate;
-import ru.practicum.shareit.exception.BadRequestException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 import static ru.practicum.shareit.config.Constants.X_SHARER_USER_ID;
@@ -32,9 +31,9 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDto bookingApprove(@PathVariable long bookingId,
+    public BookingDto bookingApprove(@PathVariable @Min(1) long bookingId,
                                      @RequestHeader(X_SHARER_USER_ID) @Min(1) long userId,
-                                     @RequestParam @NotNull String approved) {
+                                     @RequestParam @NotBlank String approved) {
         log.info("Получен запрос PATCH /bookings — подтверждение запроса на бронирование");
         return bookingService.bookingApprove(bookingId, userId, approved);
     }
@@ -48,26 +47,21 @@ public class BookingController {
 
     @GetMapping()
     public List<BookingDto> findBookingDto(@RequestHeader(X_SHARER_USER_ID) @Min(1) long userId,
+                                           @RequestParam(defaultValue = "1") @Min(0) int from,
+                                           @RequestParam(defaultValue = "10") @Min(1) int size,
                                            @RequestParam(defaultValue = "ALL") String state) {
         log.info("Получен запрос GET /bookings — получение списка всех бронирований текущего пользователя");
-        try {
-            BookingState bookingState = BookingState.valueOf(state);
-            return bookingService.findBookingDto(userId, bookingState);
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Unknown state: " + state);
-        }
+        BookingState bookingState = BookingState.valueOfState(state);
+        return bookingService.findBookingDto(userId, bookingState, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> findBookingDtoForOwner(@RequestHeader(X_SHARER_USER_ID) @Min(1) long userId,
+                                                   @RequestParam(defaultValue = "1") @Min(0) int from,
+                                                   @RequestParam(defaultValue = "10") @Min(1) int size,
                                                    @RequestParam(defaultValue = "ALL") String state) {
         log.info("Получен запрос GET /bookings/owner — получение списка бронирований для всех вещей текущего пользователя");
-        try {
-            BookingState bookingState = BookingState.valueOf(state);
-            return bookingService.findBookingDtoForOwner(userId, bookingState);
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Unknown state: " + state);
-        }
+        BookingState bookingState = BookingState.valueOfState(state);
+        return bookingService.findBookingDtoForOwner(userId, bookingState, from, size);
     }
-
 }
