@@ -1,10 +1,7 @@
 package ru.practicum.shareit.booking.dto;
 
 import lombok.*;
-import ru.practicum.shareit.valid.StartBeforeEndDateValid;
 
-import javax.validation.constraints.FutureOrPresent;
-import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -13,12 +10,9 @@ import java.util.Objects;
 @ToString
 @Builder
 @AllArgsConstructor
-@StartBeforeEndDateValid
 public class BookingDtoCreate {
-    @FutureOrPresent
     private LocalDateTime start;
     private LocalDateTime end;
-    @Min(1)
     private long itemId;
 
     @Override

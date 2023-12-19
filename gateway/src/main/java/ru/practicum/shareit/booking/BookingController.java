@@ -2,12 +2,10 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.booking.dto.BookingDtoCreate;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.exception.BadRequestException;
@@ -17,7 +15,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.util.List;
 
 import static ru.practicum.shareit.config.Constants.X_SHARER_USER_ID;
 
@@ -42,9 +39,9 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<Object> bookItem(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                           @RequestBody @Valid BookItemRequestDto requestDto) {
-        log.info("Creating booking {}, userId={}", requestDto, userId);
-        return bookingClient.bookItem(userId, requestDto);
+                                           @RequestBody @Valid BookingDtoCreate bookingDtoCreate) {
+        log.info("Creating booking {}, userId={}", bookingDtoCreate, userId);
+        return bookingClient.bookItem(userId, bookingDtoCreate);
     }
 
     @GetMapping("/{bookingId}")

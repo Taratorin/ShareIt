@@ -37,11 +37,11 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> saveComment(CommentDtoCreate commentDtoCreate, long itemId, long userId) {
-        return post("/" + itemId + "comment", userId, commentDtoCreate);
+        return post("/" + itemId + "/comment", userId, commentDtoCreate);
     }
 
     public ResponseEntity<Object> findItemDtoById(long itemId, long userId) {
-        return get("/" + itemId, itemId);
+        return get("/" + itemId, userId);
     }
 
     public ResponseEntity<Object> findItemsByUserId(long userId, int from, int size) {
