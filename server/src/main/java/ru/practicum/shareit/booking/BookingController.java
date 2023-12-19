@@ -20,7 +20,6 @@ import static ru.practicum.shareit.config.Constants.X_SHARER_USER_ID;
 @RequiredArgsConstructor
 @Validated
 public class BookingController {
-
     private final BookingService bookingService;
 
     @PostMapping()
