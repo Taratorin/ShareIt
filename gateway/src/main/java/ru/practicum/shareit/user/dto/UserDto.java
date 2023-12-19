@@ -15,7 +15,12 @@ import java.util.Objects;
 @Builder
 public class UserDto {
     private long id;
+    @NotBlank(groups = {Create.class})
+    @Size(max = 255, groups = {Create.class, Update.class})
     private String name;
+    @Email(groups = {Create.class, Update.class})
+    @NotEmpty(groups = {Create.class})
+    @Size(max = 512, groups = {Create.class, Update.class})
     private String email;
 
     @Override

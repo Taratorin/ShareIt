@@ -1,5 +1,4 @@
 package ru.practicum.shareit.config;
 
-//todo delete
-public interface Create {
+public interface Update {
 }

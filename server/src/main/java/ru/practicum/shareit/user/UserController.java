@@ -2,13 +2,12 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.config.Create;
-import ru.practicum.shareit.config.Update;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
+
+import static ru.practicum.shareit.config.Constants.X_SHARER_USER_ID;
 
 @RestController
 @RequestMapping(path = "/users")
@@ -19,15 +18,16 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping()
-    public UserDto createUser(@Validated(Create.class) @RequestBody UserDto userDto) {
+    public UserDto createUser(@RequestBody UserDto userDto) {
         log.info("Получен запрос POST /users — добавление пользователя");
         return userService.saveUser(userDto);
     }
 
-    @PatchMapping("/{id}")
-    public UserDto updateUser(@Validated(Update.class) @RequestBody UserDto userDto, @PathVariable int id) {
+    @PatchMapping()
+    public UserDto updateUser(@RequestBody UserDto userDto,
+                              @RequestHeader(X_SHARER_USER_ID) long userId) {
         log.info("Получен запрос PATCH /users — обновление пользователя");
-        return userService.updateUser(userDto, id);
+        return userService.updateUser(userDto, userId);
     }
 
     @GetMapping()
@@ -36,16 +36,15 @@ public class UserController {
         return userService.findAllUsers();
     }
 
-    @GetMapping("/{id}")
-    public UserDto findUser(@PathVariable int id) {
-        log.info("Получен запрос GET /users/{Id} — получение пользователя по id");
-        return userService.findUserDtoById(id);
+    @GetMapping(headers = X_SHARER_USER_ID)
+    public UserDto findUser(@RequestHeader(X_SHARER_USER_ID) long userId) {
+        log.info("Получен запрос GET /users/{userId} — получение пользователя по id");
+        return userService.findUserDtoById(userId);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable int id) {
+    @DeleteMapping()
+    public void deleteUser(@RequestHeader(X_SHARER_USER_ID) long userId) {
         log.info("Получен запрос DELETE /users/{userId} — удаление пользователя");
-        userService.deleteUser(id);
+        userService.deleteUser(userId);
     }
-
 }
