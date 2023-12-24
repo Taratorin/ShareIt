@@ -19,20 +19,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler()
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(final NotFoundException e) {
-        log.trace("Получен статус 404 Not Found {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler()
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleForbiddenException(final ForbiddenException e) {
-        log.trace("Получен статус 403 Forbidden {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler()
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowableException(final Throwable e) {
         log.trace("Получен статус 500 Internal Server Error {}", e.getMessage(), e);

@@ -8,7 +8,6 @@ import ru.practicum.shareit.item.dto.CommentDtoCreate;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoCreateUpdate;
 
-import javax.validation.constraints.Min;
 import java.util.List;
 
 import static ru.practicum.shareit.config.Constants.X_SHARER_USER_ID;
@@ -29,7 +28,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDtoCreateUpdate updateItem(@RequestBody ItemDtoCreateUpdate itemDtoCreateUpdate,
-                              @PathVariable @Min(1) long itemId,
+                              @PathVariable long itemId,
                               @RequestHeader(X_SHARER_USER_ID) long userId) {
         log.info("Получен запрос PATCH /items — обновление вещи");
         return itemService.updateItem(itemDtoCreateUpdate, itemId, userId);
