@@ -52,20 +52,6 @@ class ItemRequestControllerIntegrationTest {
         assertThat(result, equalTo(objectMapper.writeValueAsString(itemRequestDto)));
     }
 
-//    @SneakyThrows
-//    @Test
-//    void createItemRequest_whenItemRequestDtoCreateIsNotValid_thenBadRequest() {
-//        ItemRequestDtoCreate itemRequestDtoCreate = getItemRequestDtoCreate();
-//        itemRequestDtoCreate.setDescription(" ");
-//        long requestorId = 1L;
-//        mockMvc.perform(post("/requests")
-//                        .content(objectMapper.writeValueAsString(itemRequestDtoCreate))
-//                        .header(X_SHARER_USER_ID, requestorId)
-//                        .contentType("application/json"))
-//                .andExpect(status().isBadRequest());
-//        verify(itemRequestService, never()).saveRequest(itemRequestDtoCreate, requestorId);
-//    }
-
     @SneakyThrows
     @Test
     void findItemRequests() {

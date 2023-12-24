@@ -36,67 +36,6 @@ class BookingControllerIntegrationTest {
     @MockBean
     private BookingService bookingService;
 
-
-//    @SneakyThrows
-//    @Test
-//    void createBooking_whenStartIsNull_thenBadRequest() {
-//        BookingDtoCreate bookingDtoCreate = getBookingDtoCreate();
-//        bookingDtoCreate.setStart(null);
-//        mockMvc.perform(post("/bookings")
-//                        .content(objectMapper.writeValueAsString(bookingDtoCreate))
-//                        .contentType("application/json"))
-//                .andExpect(status().isBadRequest());
-//        verify(bookingService, never()).saveBooking(bookingDtoCreate, eq(anyLong()));
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void createBooking_whenEndIsNull_thenBadRequest() {
-//        BookingDtoCreate bookingDtoCreate = getBookingDtoCreate();
-//        bookingDtoCreate.setEnd(null);
-//        mockMvc.perform(post("/bookings")
-//                        .content(objectMapper.writeValueAsString(bookingDtoCreate))
-//                        .contentType("application/json"))
-//                .andExpect(status().isBadRequest());
-//        verify(bookingService, never()).saveBooking(bookingDtoCreate, eq(anyLong()));
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void createBooking_whenStartEqualsEnd_thenBadRequest() {
-//        BookingDtoCreate bookingDtoCreate = getBookingDtoCreate();
-//        bookingDtoCreate.setEnd(bookingDtoCreate.getStart());
-//        mockMvc.perform(post("/bookings")
-//                        .content(objectMapper.writeValueAsString(bookingDtoCreate))
-//                        .contentType("application/json"))
-//                .andExpect(status().isBadRequest());
-//        verify(bookingService, never()).saveBooking(bookingDtoCreate, eq(anyLong()));
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void createBooking_whenItemIdIsNotValid_thenBadRequest() {
-//        BookingDtoCreate bookingDtoCreate = getBookingDtoCreate();
-//        bookingDtoCreate.setItemId(-10L);
-//        mockMvc.perform(post("/bookings")
-//                        .content(objectMapper.writeValueAsString(bookingDtoCreate))
-//                        .contentType("application/json"))
-//                .andExpect(status().isBadRequest());
-//        verify(bookingService, never()).saveBooking(bookingDtoCreate, eq(anyLong()));
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void createBooking_whenBookerIdIsNotValid() {
-//        BookingDtoCreate bookingDtoCreate = getBookingDtoCreate();
-//        mockMvc.perform(post("/bookings")
-//                        .content(objectMapper.writeValueAsString(bookingDtoCreate))
-//                        .header(X_SHARER_USER_ID, -1L)
-//                        .contentType("application/json"))
-//                .andExpect(status().isInternalServerError());
-//        verify(bookingService, never()).saveBooking(bookingDtoCreate, eq(anyLong()));
-//    }
-
     @SneakyThrows
     @Test
     void createBooking_whenNotFoundExceptionThrown() {
@@ -142,48 +81,6 @@ class BookingControllerIntegrationTest {
         verify(bookingService, times(1)).saveBooking(bookingDtoCreate, bookerId);
         assertThat(result, equalTo(objectMapper.writeValueAsString(getBookingDto())));
     }
-
-//    @SneakyThrows
-//    @Test
-//    void bookingApprove_whenBookingIdNotValid() {
-//        long bookingId = -1L;
-//        long userId = 1L;
-//        String approved = "true";
-//        mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
-//                        .header(X_SHARER_USER_ID, userId)
-//                        .param("approved", approved)
-//                        .contentType("application/json"))
-//                .andExpect(status().isInternalServerError());
-//        verify(bookingService, never()).bookingApprove(bookingId, userId, approved);
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void bookingApprove_whenUserIdNotValid() {
-//        long bookingId = 1L;
-//        long userId = -1L;
-//        String approved = "true";
-//        mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
-//                        .header(X_SHARER_USER_ID, userId)
-//                        .param("approved", approved)
-//                        .contentType("application/json"))
-//                .andExpect(status().isInternalServerError());
-//        verify(bookingService, never()).bookingApprove(bookingId, userId, approved);
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void bookingApprove_whenApprovedNotValid() {
-//        long bookingId = 1L;
-//        long userId = 1L;
-//        String approved = " ";
-//        mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
-//                        .header(X_SHARER_USER_ID, userId)
-//                        .param("approved", approved)
-//                        .contentType("application/json"))
-//                .andExpect(status().isInternalServerError());
-//        verify(bookingService, never()).bookingApprove(bookingId, userId, approved);
-//    }
 
     @SneakyThrows
     @Test

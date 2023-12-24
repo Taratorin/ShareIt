@@ -37,53 +37,6 @@ class ItemControllerIntegrationTest {
     @MockBean
     private ItemService itemService;
 
-//    @SneakyThrows
-//    @Test
-//    void saveItem_whenItemNameNotValid_thenBadRequest() {
-//        ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
-//        itemDtoCreateUpdate.setName(" ");
-//        mockMvc.perform(post("/items")
-//                        .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-//                        .contentType("application/json"))
-//                .andExpect(status().isBadRequest());
-//        verify(itemService, never()).saveItem(itemDtoCreateUpdate, eq(anyLong()));
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void saveItem_whenItemDescriptionNotValid_thenBadRequest() {
-//        ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
-//        itemDtoCreateUpdate.setDescription(" ");
-//        mockMvc.perform(post("/items")
-//                        .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-//                        .contentType("application/json"))
-//                .andExpect(status().isBadRequest());
-//        verify(itemService, never()).saveItem(itemDtoCreateUpdate, eq(anyLong()));
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void saveItem_whenItemAvailableNotValid_thenBadRequest() {
-//        ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
-//        itemDtoCreateUpdate.setAvailable(null);
-//        mockMvc.perform(post("/items")
-//                        .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-//                        .contentType("application/json"))
-//                .andExpect(status().isBadRequest());
-//        verify(itemService, never()).saveItem(itemDtoCreateUpdate, eq(anyLong()));
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void saveItem_whenUserIdNotValid_thenInternalServerError() {
-//        ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
-//        mockMvc.perform(post("/items")
-//                        .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-//                        .header(X_SHARER_USER_ID, -1L)
-//                        .contentType("application/json"))
-//                .andExpect(status().isInternalServerError());
-//        verify(itemService, never()).saveItem(itemDtoCreateUpdate, eq(anyLong()));
-//    }
 
     @SneakyThrows
     @Test
@@ -114,32 +67,6 @@ class ItemControllerIntegrationTest {
         verify(itemService).saveItem(itemDtoCreateUpdate, 1L);
         assertThat(result, equalTo(objectMapper.writeValueAsString(itemDtoCreateUpdate)));
     }
-
-//    @SneakyThrows
-//    @Test
-//    void updateItem_whenItemIdIsNotValid() {
-//        ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
-//        long itemId = -1;
-//        mockMvc.perform(patch("/items/{itemId}", itemId)
-//                        .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-//                        .header(X_SHARER_USER_ID, 1L)
-//                        .contentType("application/json"))
-//                .andExpect(status().isInternalServerError());
-//        verify(itemService, never()).updateItem(any(ItemDtoCreateUpdate.class), anyLong(), anyLong());
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void updateItem_whenUserIdIsNotValid() {
-//        ItemDtoCreateUpdate itemDtoCreateUpdate = getItemDtoCreateUpdate();
-//        long itemId = 1;
-//        mockMvc.perform(patch("/items/{itemId}", itemId)
-//                        .content(objectMapper.writeValueAsString(itemDtoCreateUpdate))
-//                        .header(X_SHARER_USER_ID, -1L)
-//                        .contentType("application/json"))
-//                .andExpect(status().isInternalServerError());
-//        verify(itemService, never()).updateItem(any(ItemDtoCreateUpdate.class), anyLong(), anyLong());
-//    }
 
     @SneakyThrows
     @Test
@@ -175,52 +102,6 @@ class ItemControllerIntegrationTest {
         assertThat(result, equalTo(objectMapper.writeValueAsString(itemDtoCreateUpdate)));
     }
 
-//    @SneakyThrows
-//    @Test
-//    void saveComment_whenCommentIsBlank_thenBadRequest() {
-//        CommentDtoCreate commentDtoCreate = getCommentDtoCreate();
-//        commentDtoCreate.setText(" ");
-//        long itemId = 1L;
-//        long userId = 1L;
-//        when(itemService.saveComment(commentDtoCreate, itemId, userId)).thenReturn(getCommentDto());
-//        mockMvc.perform(post("/items/{itemId}/comment", itemId)
-//                        .content(objectMapper.writeValueAsString(commentDtoCreate))
-//                        .header(X_SHARER_USER_ID, userId)
-//                        .contentType("application/json"))
-//                .andExpect(status().isBadRequest());
-//        verify(itemService, never()).saveComment(commentDtoCreate, itemId, userId);
-//    }
-
-//    @SneakyThrows
-//    @Test
-//    void saveComment_whenItemIdNotValid() {
-//        CommentDtoCreate commentDtoCreate = getCommentDtoCreate();
-//        long itemId = -1L;
-//        long userId = 1L;
-//        when(itemService.saveComment(commentDtoCreate, itemId, userId)).thenReturn(getCommentDto());
-//        mockMvc.perform(post("/items/{itemId}/comment", itemId)
-//                        .content(objectMapper.writeValueAsString(commentDtoCreate))
-//                        .header(X_SHARER_USER_ID, userId)
-//                        .contentType("application/json"))
-//                .andExpect(status().isInternalServerError());
-//        verify(itemService, never()).saveComment(commentDtoCreate, itemId, userId);
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void saveComment_whenUserIdNotValid() {
-//        CommentDtoCreate commentDtoCreate = getCommentDtoCreate();
-//        long itemId = 1L;
-//        long userId = -1L;
-//        when(itemService.saveComment(commentDtoCreate, itemId, userId)).thenReturn(getCommentDto());
-//        mockMvc.perform(post("/items/{itemId}/comment", itemId)
-//                        .content(objectMapper.writeValueAsString(commentDtoCreate))
-//                        .header(X_SHARER_USER_ID, userId)
-//                        .contentType("application/json"))
-//                .andExpect(status().isInternalServerError());
-//        verify(itemService, never()).saveComment(commentDtoCreate, itemId, userId);
-//    }
-
     @SneakyThrows
     @Test
     void saveComment_whenAllIsValid() {
@@ -240,36 +121,6 @@ class ItemControllerIntegrationTest {
         assertThat(result, equalTo(objectMapper.writeValueAsString(getCommentDto())));
     }
 
-//    @SneakyThrows
-//    @Test
-//    void getItem_whenItemIsIsNotValid() {
-//        ItemDto itemDto = getItemDto();
-//        long itemId = -1L;
-//        long userId = 1L;
-//        when(itemService.findItemDtoById(itemId, userId)).thenReturn(itemDto);
-//        mockMvc.perform(get("/items/{itemId}", itemId)
-//                        .contentType("application/json")
-//                        .header(X_SHARER_USER_ID, userId)
-//                        .content(objectMapper.writeValueAsString(itemDto)))
-//                .andExpect(status().isInternalServerError());
-//        verify(itemService, never()).findItemDtoById(itemId, userId);
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void getItem_whenUserIsIsNotValid() {
-//        ItemDto itemDto = getItemDto();
-//        long itemId = 1L;
-//        long userId = -1L;
-//        when(itemService.findItemDtoById(itemId, userId)).thenReturn(itemDto);
-//        mockMvc.perform(get("/items/{itemId}", itemId)
-//                        .contentType("application/json")
-//                        .header(X_SHARER_USER_ID, userId)
-//                        .content(objectMapper.writeValueAsString(itemDto)))
-//                .andExpect(status().isInternalServerError());
-//        verify(itemService, never()).findItemDtoById(itemId, userId);
-//    }
-
     @SneakyThrows
     @Test
     void getItem_whenAllIsValid() {
@@ -288,40 +139,6 @@ class ItemControllerIntegrationTest {
         assertThat(result, equalTo(objectMapper.writeValueAsString(itemDto)));
         verify(itemService, times(1)).findItemDtoById(itemId, userId);
     }
-
-//    @SneakyThrows
-//    @Test
-//    void getItemByUserId_whenFromIsNotValid() {
-//        List<ItemDto> itemDtos = List.of(getItemDto());
-//        long userId = 1L;
-//        int from = -1;
-//        int size = 10;
-//        mockMvc.perform(get("/items")
-//                        .contentType("application/json")
-//                        .header(X_SHARER_USER_ID, userId)
-//                        .param("from", String.valueOf(from))
-//                        .param("size", String.valueOf(size))
-//                        .content(objectMapper.writeValueAsString(itemDtos)))
-//                .andExpect(status().isInternalServerError());
-//        verify(itemService, never()).findItemsByUserId(userId, from, size);
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void getItemByUserId_whenSizeIsNotValid() {
-//        List<ItemDto> itemDtos = List.of(getItemDto());
-//        long userId = 1L;
-//        int from = 1;
-//        int size = -10;
-//        mockMvc.perform(get("/items")
-//                        .contentType("application/json")
-//                        .header(X_SHARER_USER_ID, userId)
-//                        .param("from", String.valueOf(from))
-//                        .param("size", String.valueOf(size))
-//                        .content(objectMapper.writeValueAsString(itemDtos)))
-//                .andExpect(status().isInternalServerError());
-//        verify(itemService, never()).findItemsByUserId(userId, from, size);
-//    }
 
     @SneakyThrows
     @Test

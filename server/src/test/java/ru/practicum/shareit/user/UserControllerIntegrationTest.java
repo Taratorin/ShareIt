@@ -50,30 +50,6 @@ class UserControllerIntegrationTest {
         verify(userService).saveUser(userDto);
     }
 
-//    @SneakyThrows
-//    @Test
-//    void createUser_whenNotValidName_thenBadRequest() {
-//        UserDto userDto = getUserDtos().get(0);
-//        userDto.setName("   ");
-//        mockMvc.perform(post("/users")
-//                        .content(objectMapper.writeValueAsString(userDto))
-//                        .contentType("application/json"))
-//                .andExpect(status().isBadRequest());
-//        verify(userService, never()).saveUser(userDto);
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void createUser_whenNotValidEmail_thenBadRequest() {
-//        UserDto userDto = getUserDtos().get(0);
-//        userDto.setEmail("email");
-//        mockMvc.perform(post("/users")
-//                        .content(objectMapper.writeValueAsString(userDto))
-//                        .contentType("application/json"))
-//                .andExpect(status().isBadRequest());
-//        verify(userService, never()).saveUser(userDto);
-//    }
-
     @SneakyThrows
     @Test
     void createUser_whenAnyExceptionThrown_thenBadRequest() {
@@ -86,19 +62,6 @@ class UserControllerIntegrationTest {
         verify(userService, times(1)).saveUser(userDto);
     }
 
-//    @SneakyThrows
-//    @Test
-//    void updateUser_whenUserIsNotValid_thenBadRequest() {
-//        long id = 0L;
-//        UserDto userDto = getUserDtos().get(0);
-//        userDto.setEmail("email");
-//        mockMvc.perform(patch("/users/{id}", id)
-//                        .contentType("application/json")
-//                        .content(objectMapper.writeValueAsString(userDto)))
-//                .andExpect(status().isBadRequest());
-//        verify(userService, never()).updateUser(userDto, id);
-//    }
-
     @SneakyThrows
     @Test
     void createUser_whenAnyNotFoundExceptionThrown() {
@@ -110,24 +73,6 @@ class UserControllerIntegrationTest {
                 .andExpect(status().isNotFound());
         verify(userService, times(1)).saveUser(userDto);
     }
-
-//    @SneakyThrows
-//    @Test
-//    void updateUser_whenUserIsValid() {
-//        long id = 0L;
-//        UserDto userDto = getUserDtos().get(0);
-//        userDto.setEmail("emailNew@email.com");
-//        when(userService.updateUser(userDto, id)).thenReturn(userDto);
-//        String result = mockMvc.perform(patch("/users/{id}", id)
-//                        .contentType("application/json")
-//                        .content(objectMapper.writeValueAsString(userDto)))
-//                .andExpect(status().isOk())
-//                .andReturn()
-//                .getResponse()
-//                .getContentAsString();
-//        assertThat(result, equalTo(objectMapper.writeValueAsString(userDto)));
-//        verify(userService).updateUser(userDto, id);
-//    }
 
     @SneakyThrows
     @Test
@@ -144,32 +89,6 @@ class UserControllerIntegrationTest {
         assertThat(result, equalTo(objectMapper.writeValueAsString(userDtos)));
         verify(userService).findAllUsers();
     }
-
-//    @SneakyThrows
-//    @Test
-//    void getUser() {
-//        long id = 0L;
-//        UserDto userDto = getUserDtos().get(0);
-//        when(userService.findUserDtoById(id)).thenReturn(userDto);
-//        String result = mockMvc.perform(get("/users/{id}", id))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andReturn()
-//                .getResponse()
-//                .getContentAsString();
-//        verify(userService).findUserDtoById(id);
-//        assertThat(result, equalTo(objectMapper.writeValueAsString(userDto)));
-//    }
-//
-//    @SneakyThrows
-//    @Test
-//    void deleteUser() {
-//        long id = 0L;
-//        mockMvc.perform(delete("/users/{id}", id))
-//                .andDo(print())
-//                .andExpect(status().isOk());
-//        verify(userService).deleteUser(id);
-//    }
 
     private List<UserDto> getUserDtos() {
         List<UserDto> userDtos = new ArrayList<>();
