@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import ru.practicum.shareit.config.Create;
 import ru.practicum.shareit.config.Update;
 import ru.practicum.shareit.item.dto.CommentDtoCreate;
@@ -14,7 +13,6 @@ import ru.practicum.shareit.item.dto.ItemDtoCreateUpdate;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-
 import java.util.List;
 
 import static ru.practicum.shareit.config.Constants.X_SHARER_USER_ID;
